@@ -1,0 +1,1006 @@
+/* =========================================
+   OBSIDIAN TEMPEST: MASTER CORE STYLES
+   v7.0 - Mobile-First Responsive Overhaul
+   ========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* =========================================
+   1. ROOT VARIABLES & FLUID SYSTEM
+   ========================================= */
+:root {
+  /* Palette */
+  --color-void: #010103;
+  --color-abyss: #05070a;
+  --color-obsidian: #0a0b10;
+  --color-cyan: #00e5ff;
+  --color-cyan-glow: rgba(0, 229, 255, 0.4);
+  --color-magma: #ff3300;
+  --color-crimson: #aa0505;
+  --color-gold: #d4af37;
+  --color-text-main: #f0f4f8;
+  --color-text-muted: #9aa0b0;
+
+  /* Typography - Fluid scaling with safe bounds */
+  --font-display: 'Cinzel Decorative', 'Cinzel', serif;
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  
+  --text-xs: clamp(0.75rem, 2vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 2.5vw, 1rem);
+  --text-base: clamp(1rem, 2.8vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 3vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 4vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 5vw, 2rem);
+  --text-3xl: clamp(2rem, 7vw, 3rem);
+  --text-4xl: clamp(2.5rem, 9vw, 4rem);
+  --text-5xl: clamp(3rem, 12vw, 5rem);
+  --text-6xl: clamp(3.5rem, 15vw, 6.5rem);
+
+  /* Spacing - Fluid with mobile-safe minimums */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  
+  --section-spacing: clamp(2.5rem, 8vw, 8rem);
+  --card-padding: clamp(1.25rem, 4vw, 2.5rem);
+  --container-padding: clamp(1rem, 5vw, 4rem);
+
+  /* Layout */
+  --container-max: 1440px;
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+  
+  /* Safe Areas for Notched Devices */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  
+  /* Mobile Detection via JS class (add .is-touch to <html> if needed) */
+  --is-touch: 0;
+}
+
+/* =========================================
+   2. CRITICAL RESET & BASE
+   ========================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-void);
+  background: transparent !important;
+  color: var(--color-text-main);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Prevent horizontal scroll at root */
+html, body {
+  max-width: 100vw;
+  position: relative;
+}
+
+/* =========================================
+   3. TYPOGRAPHY - MOBILE-SAFE SCALING
+   ========================================= */
+h1, h2, h3, h4, h5, h6, p, a, span, li {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--color-text-main);
+  margin-bottom: 0.75rem;
+  hyphens: none;
+}
+
+h1 { 
+  font-family: var(--font-display); 
+  font-size: var(--text-6xl);
+  letter-spacing: 0.03em; 
+  text-transform: uppercase; 
+  text-shadow: 0 0 20px rgba(0, 229, 255, 0.3), 0 4px 20px rgba(0,0,0,1);
+  line-height: 1.1;
+  text-align: center;
+  padding: 0 var(--space-4);
+}
+
+h2 { 
+  font-size: var(--text-4xl);
+  text-align: center;
+  padding: 0 var(--space-4);
+}
+
+h3 { 
+  font-size: var(--text-2xl); 
+  color: var(--color-cyan);
+  text-align: center;
+}
+
+h4 { 
+  font-size: var(--text-lg); 
+  text-transform: uppercase; 
+  letter-spacing: 0.08em; 
+  color: var(--color-gold);
+  text-align: center;
+}
+
+p { 
+  font-family: var(--font-body);
+  font-size: var(--text-base); 
+  line-height: 1.7; 
+  color: var(--color-text-muted); 
+  margin-bottom: 1rem;
+  max-width: 75ch;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/* Left-align paragraphs inside cards for readability */
+.magitech-glass-card p,
+.parchment-card p,
+.project-info p {
+  text-align: left;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+a { 
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--color-cyan); 
+  text-decoration: none; 
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  display: inline-block;
+  max-width: 100%;
+}
+
+a:hover { 
+  color: #ffffff; 
+  text-shadow: 0 0 12px var(--color-cyan), 0 0 24px var(--color-cyan); 
+}
+
+/* Code Blocks - Scrollable on Mobile */
+code, kbd, pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+pre {
+  background: rgba(10, 11, 16, 0.9);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  padding: var(--card-padding); 
+  border-radius: var(--border-radius-md); 
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  color: var(--color-cyan);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9), 0 8px 24px rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  max-width: 100%;
+  margin: 1rem 0;
+}
+
+code { 
+  background: rgba(0, 229, 255, 0.1); 
+  padding: 0.2em 0.4em; 
+  border-radius: 4px; 
+  color: #fff; 
+  white-space: pre-wrap;
+}
+
+/* =========================================
+   4. LAYOUT ARCHITECTURE - CENTERING & FLOW
+   ========================================= */
+.z-canvas    { z-index: -1 !important; position: fixed; inset: 0; pointer-events: none; } 
+.z-ui-base   { z-index: 10; position: relative; width: 100%; }  
+.z-glass     { z-index: 20; position: relative; }  
+.z-overlay   { z-index: 50; }  
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+  padding-left: calc(var(--container-padding) + var(--safe-left));
+  padding-right: calc(var(--container-padding) + var(--safe-right));
+  pointer-events: auto;
+  position: relative;
+}
+
+.viewport-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--section-spacing) 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  background: transparent !important;
+  text-align: center;
+}
+
+#intro { 
+  z-index: 20; 
+  pointer-events: auto; 
+}
+
+/* =========================================
+   5. RESPONSIVE GRID SYSTEM
+   ========================================= */
+.grid-auto { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); 
+  gap: clamp(1rem, 3vw, 2rem);
+  width: 100%;
+}
+
+.grid-2 { 
+  display: grid; 
+  grid-template-columns: 1fr; 
+  gap: 2rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (min-width: 992px) { 
+  .grid-2 { grid-template-columns: 1fr 1fr; } 
+}
+
+/* Flex Utilities */
+.flex-center { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  width: 100%;
+}
+
+.flex-between { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  flex-wrap: wrap; 
+  gap: 1rem;
+  width: 100%;
+}
+
+.flex-col { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center;
+  width: 100%;
+}
+
+.gap-sm { gap: 0.5rem; }
+.gap-md { gap: 1rem; }
+.gap-lg { gap: 2rem; }
+
+/* =========================================
+   6. CARD COMPONENTS - CENTERING & SIZING
+   ========================================= */
+.magitech-glass-card,
+.parchment-card,
+.obsidian-shatter-card {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  border-radius: var(--border-radius-lg);
+  pointer-events: auto;
+  contain: layout style paint;
+}
+
+/* Glass Card - Centered Content */
+.magitech-glass-card {
+  background: rgba(8, 9, 14, 0.7);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 229, 255, 0.05);
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: auto;
+}
+
+/* Ensure card children don't overflow */
+.magitech-glass-card > * {
+  max-width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* Parchment Card */
+.parchment-card {
+  padding: var(--card-padding);
+  background: linear-gradient(135deg, rgba(25, 26, 33, 0.95) 0%, rgba(10, 11, 15, 0.98) 100%);
+  border: 1px solid rgba(255, 51, 0, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 0 60px rgba(170, 5, 5, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.parchment-card h2, 
+.parchment-card h3 { 
+  color: var(--color-magma); 
+  text-shadow: 0 0 15px rgba(255, 51, 0, 0.4);
+}
+
+/* Shatter Card */
+.obsidian-shatter-card {
+  background: rgba(10, 10, 12, 0.7);
+  backdrop-filter: blur(12px) brightness(0.85);
+  -webkit-backdrop-filter: blur(12px) brightness(0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 200px;
+}
+
+/* =========================================
+   7. BUTTONS & INTERACTIVE - TOUCH SAFE
+   ========================================= */
+.obsidian-btn,
+.interact-btn,
+.volcanic-tome-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  min-height: 48px;
+  min-width: 48px;
+  background: linear-gradient(180deg, rgba(20, 22, 30, 0.9), rgba(5, 7, 10, 0.95));
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  text-decoration: none;
+  max-width: 100%;
+  width: auto;
+}
+
+.obsidian-btn:hover,
+.interact-btn:hover {
+  background: rgba(0, 229, 255, 0.15);
+  color: #fff;
+  box-shadow: 0 0 20px var(--color-cyan-glow), inset 0 0 10px var(--color-cyan-glow);
+  text-shadow: 0 0 8px #fff;
+}
+
+.obsidian-btn svg,
+.interact-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   8. PROJECT SECTION - MOBILE LAYOUT
+   ========================================= */
+.project-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.project-glass-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0 !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+.project-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--card-padding);
+  width: 100%;
+  text-align: center;
+}
+
+.project-info h3,
+.project-info p {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.project-preview-target {
+  flex: 1;
+  min-height: 250px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 992px) {
+  .project-glass-container {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  
+  .row-reversed .project-glass-container {
+    flex-direction: row-reverse;
+  }
+  
+  .project-info { 
+    flex: 0.45; 
+    text-align: left;
+  }
+  
+  .project-info h3,
+  .project-info p {
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+  .project-preview-target { 
+    flex: 0.55; 
+    min-height: 400px; 
+    border-left: 1px solid rgba(255,255,255,0.1); 
+  }
+  
+  .row-reversed .project-preview-target { 
+    border-left: none; 
+    border-right: 1px solid rgba(255,255,255,0.1); 
+  }
+}
+/* =========================================
+   9. INTRO SECTION - CINEMATIC OVERLAY
+   ========================================= */
+.intro-cinematic-overlay {
+  /* UPGRADE: Changed from absolute to fixed. This guarantees it covers the entire monitor viewport on desktop. */
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 100;
+  background: radial-gradient(circle at center, transparent 0%, rgba(5, 5, 8, 0.85) 60%, rgba(1, 1, 3, 0.95) 100%);
+  padding: clamp(1rem, 5vw, 4rem);
+}
+
+.intro-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+  /* UPGRADE: Increased max-width to allow the name enough physical room to breathe on desktop monitors */
+  max-width: 1400px; 
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+/* UPGRADE: Added explicit rules for the name to prevent line-breaking */
+.intro-dragon-name {
+  font-family: var(--font-display, serif);
+  /* Fluid typography: scales perfectly between small phones and 4K monitors */
+  font-size: clamp(2rem, 7vw, 6.5rem);
+  letter-spacing: clamp(2px, 1.5vw, 10px);
+  color: #ffffff;
+  /* Forces the browser to keep the text on a single line as long as physically possible */
+  white-space: nowrap; 
+  text-align: center;
+  width: 100%;
+}
+
+.dragon-tagline-container {
+  font-family: var(--font-mono, monospace);
+  color: var(--color-cyan);
+  font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+  min-height: 1.5rem;
+  text-align: center;
+  padding: 0 clamp(1rem, 2vw, 2rem);
+  /* UPGRADE: Removed 'break-word'. Let the browser wrap normally at spaces instead of chopping mid-word. */
+  word-break: normal;
+  overflow-wrap: normal;
+}
+/* =========================================
+   10. SOCIAL EMBLEMS - WRAP & CENTER
+   ========================================= */
+.social-emblem-list {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  pointer-events: auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-2) 0;
+}
+
+.obsidian-emblem, 
+.magitech-emblem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  min-height: 52px;
+  background: linear-gradient(145deg, #161822, var(--color-abyss));
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-main);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.obsidian-emblem:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-cyan);
+  box-shadow: 0 12px 25px rgba(0, 229, 255, 0.2);
+  color: var(--color-cyan);
+}
+
+.obsidian-emblem svg {
+  width: 22px;
+  height: 22px;
+  z-index: 2;
+}
+
+/* =========================================
+   11. SEAL BUTTONS - RESPONSIVE STACKING
+   ========================================= */
+.medieval-seal-btn, 
+.magitech-seal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+  font-family: var(--font-heading);
+  pointer-events: auto;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.seal-wax-container {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  min-width: 70px;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  border-radius: 50%;
+  animation: pulse-magma 4s infinite;
+  will-change: transform, box-shadow;
+  flex-shrink: 0;
+}
+
+.seal-text {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  transition: all 0.3s ease;
+  text-align: center;
+  line-height: 1.3;
+  padding: 0 var(--space-2);
+}
+
+/* =========================================
+   12. LIVE PREVIEW & IFRAME CONTAINERS
+   ========================================= */
+.live-preview-container,
+.storm-portal-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  min-height: 200px;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+  pointer-events: auto;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.preview-overlay,
+.storm-portal-container .ancient-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.overlay-actions,
+.action-core {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Iframe wrapper fills container */
+.storm-portal-container .iframe-wrapper,
+.live-preview-container iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  min-height: 200px;
+}
+
+/* =========================================
+   13. LOADER COMPONENTS
+   ========================================= */
+.loader-overlay,
+.obsidian-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--color-abyss);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+}
+
+.loader-text,
+.obsidian-loader span {
+  margin-top: 1.5rem;
+  font-family: var(--font-mono);
+  color: var(--color-cyan);
+  letter-spacing: 3px;
+  font-size: var(--text-sm);
+  word-break: break-word;
+}
+
+.magitech-spinner,
+.cyan-ring {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(0, 229, 255, 0.15);
+  border-top-color: var(--color-cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 15px var(--color-cyan-glow);
+  flex-shrink: 0;
+}
+
+/* =========================================
+   14. ANIMATIONS - REDUCED MOTION SAFE
+   ========================================= */
+@keyframes cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-magma {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 51, 0, 0.4), inset 0 0 20px rgba(170, 5, 5, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(255, 51, 0, 0.8), inset 0 0 30px rgba(255, 51, 0, 0.8); }
+}
+@keyframes shimmer-sweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.cursor-blink { animation: cursor-blink 1s infinite; }
+.blink { animation: blink 1s step-end infinite; }
+
+.magitech-spinner,
+.cyan-ring { animation: spin 1s linear infinite; }
+
+.shimmer-bg {
+  background: linear-gradient(90deg, transparent 25%, rgba(0, 255, 255, 0.15) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer-sweep 2.5s infinite linear;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .shimmer-bg { animation: none; background: rgba(0, 255, 255, 0.05); }
+}
+
+/* =========================================
+   15. HOVER EFFECTS - TOUCH DEVICE DISABLED
+   ========================================= */
+/* Disable heavy hover effects on touch devices */
+@media (hover: none), (pointer: coarse) {
+  .magitech-glass-card:hover,
+  .obsidian-emblem:hover,
+  .magitech-interactive:hover::before {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  
+  /* Show default state for interactive elements on touch */
+  .magitech-glass-card::before,
+  .magitech-glass-card::after {
+    opacity: 0 !important;
+  }
+}
+
+/* Mouse-only hover effects */
+@media (hover: hover) and (pointer: fine) {
+  .magitech-glass-card:hover {
+    border-color: rgba(0, 229, 255, 0.4);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(0, 229, 255, 0.1);
+  }
+  
+  .obsidian-emblem:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-cyan);
+    box-shadow: 0 12px 25px rgba(0, 229, 255, 0.2);
+    color: var(--color-cyan);
+  }
+}
+
+/* =========================================
+   16. MEDIA QUERIES - BREAKPOINT REFINEMENT
+   ========================================= */
+
+/* Small Phones (320px - 480px) */
+@media (max-width: 480px) {
+  :root {
+    --card-padding: 1.25rem;
+    --container-padding: 1rem;
+    --section-spacing: 2rem;
+  }
+  
+  h1 { font-size: var(--text-4xl); }
+  h2 { font-size: var(--text-3xl); }
+  h3 { font-size: var(--text-xl); }
+  
+  p { font-size: var(--text-sm); }
+  
+  .magitech-glass-card,
+  .parchment-card,
+  .obsidian-shatter-card {
+    padding: 1.25rem;
+    border-radius: var(--border-radius-md);
+  }
+  
+  .project-preview-target {
+    min-height: 200px;
+  }
+  
+  .seal-wax-container {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .seal-text {
+    font-size: var(--text-base);
+  }
+}
+
+/* Tablets & Small Laptops (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  :root {
+    --card-padding: 1.5rem;
+    --section-spacing: 3rem;
+  }
+  
+  h1 { font-size: var(--text-5xl); }
+  h2 { font-size: var(--text-3xl); }
+  
+  .project-preview-target {
+    min-height: 280px;
+  }
+}
+
+/* Large Desktops (1440px+) */
+@media (min-width: 1440px) {
+  .container { max-width: 1600px; }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: more) {
+  :root {
+    --border-subtle: 1px solid rgba(255,255,255,0.5);
+    --color-text-muted: #b0b5c5;
+  }
+  
+  .magitech-glass-card,
+  .parchment-card {
+    border-width: 2px;
+  }
+}
+
+/* =========================================
+   17. ACCESSIBILITY UTILITIES
+   ========================================= */
+:focus { outline: none; }
+
+body.keyboard-navigation :focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 4px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px rgba(0, 255, 255, 0.25);
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* GPU Acceleration for smooth scrolling */
+.gpu-accel {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+/* Text truncation utilities */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Lazy loading optimization */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 800px;
+}
+
+/* =========================================
+   18. FALLBACKS & PROGRESSIVE ENHANCEMENT
+   ========================================= */
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(10px)) {
+  .magitech-glass-card,
+  .obsidian-shatter-card {
+    background: rgba(10, 11, 16, 0.95);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Fallback for CSS variables in older browsers */
+@supports not (--css: variables) {
+  :root {
+    --color-text-main: #f0f4f8;
+    --color-cyan: #00e5ff;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  
+  .viewport-section {
+    min-height: auto;
+    page-break-inside: avoid;
+  }
+  
+  .magitech-glass-card,
+  .parchment-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}

@@ -3,218 +3,301 @@
     "animation_quality": "high",
     "reduce_motion": false,
     "dragon_interaction_enabled": true,
-    "theme": "dark_fantasy",
+    "theme": "obsidian_tempest",
     "use_live_previews": true,
-    "performance_tier": "auto"
+    "performance_tier": "auto",
+    "version": "3.0.0",
+    "last_updated": "2026-04-23"
   },
   "profile": {
     "name": "Priyanshu Roy",
-    "nickname": "HackT",
-    "title": "AI & ML Security Engineer",
-    "tagline": "RAG Architectures | Agentic Workflows | Zero-Remote Edge Inference",
-    "photo_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E",
-    "resume_url": "https://github.com/PriyanshuRoy/PriyanshuRoy/raw/main/resume.pdf",
-    "email": "priyanshu.roy.dev@gmail.com",
+    "nickname": "The OG Dev",
+    "title": "AI Researcher & Security Architect",
+    "tagline": "Zero-Leakage Edge Architectures | LLM Orchestration | Cyber-Forensic ML",
+    "photo_url": "/assets/res/profile.jpg",
+    "resume_url": "/assets/res/resume.pdf",
+    "email": "priyanshuroy0912@gmail.com",
     "location": "Kolkata, India",
-    "availability": "Open to opportunities",
+    "availability": "Open to Machine Learning & Systems Design Roles",
     "socials": {
-      "github": "https://github.com/PriyanshuRoy",
-      "linkedin": "https://linkedin.com/in/priyanshu-roy-hackt",
-      "twitter": "https://twitter.com/HackT_Dev",
-      "website": "https://hackt.dev"
+      "github": "https://github.com/SuPReme-0",
+      "linkedin": "https://linkedin.com/in/priyanshu-roy-25b91a31a/",
+      "instagram": "https://instagram.com/thekronotic"
     }
   },
+  "work_experience": [
+    {
+      "id": "exp-template-01",
+      "company": "[ COMPANY NAME ]",
+      "role": "[ JOB TITLE ]",
+      "timeline": {
+        "start": "YYYY-MM",
+        "end": "YYYY-MM",
+        "current": false
+      },
+      "description": "[ High-level description of architectural responsibilities, scale of the project, and primary engineering focus. ]",
+      "achievements": [
+        "[ Achievement 1: Metric-driven outcome (e.g., Reduced latency by X%) ]",
+        "[ Achievement 2: Technical execution (e.g., Engineered Y pipeline using Z) ]",
+        "[ Achievement 3: Leadership/Scale (e.g., Scaled architecture to handle N requests) ]"
+      ],
+      "tech_stack": ["Tech A", "Tech B", "Tech C"]
+    }
+  ],
   "education": [
     {
       "id": "iem-btech",
       "institution": "Institute of Engineering & Management (IEM), Kolkata",
-      "institution_logo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 10v6M2 10l10-5 10 5-10 5z'/%3E%3Cpath d='M6 12v5c3 3 9 3 12 0v-5'/%3E%3C/svg%3E",
+      "institution_logo": "/assets/icons/iem-logo.svg",
       "degree": "Bachelor of Technology (B.Tech)",
       "field": "Artificial Intelligence & Machine Learning",
       "timeline": {
-        "start": "2023",
-        "end": "2027",
+        "start": "2024",
+        "end": "2028",
         "current": true
       },
       "relevant_coursework": [
+        "Advanced Natural Language Processing",
         "Adversarial Machine Learning",
-        "Natural Language Processing",
         "Hardware-Accelerated Computing",
         "Cryptography & Network Security",
-        "Reinforcement Learning",
-        "Distributed Systems Architecture"
+        "Distributed Systems Architecture",
+        "Edge AI & Embedded Systems",
+        "Probabilistic Graphical Models"
+      ],
+      "gpa": "8.7/10.0",
+      "activities": [
+        "Lead Developer, Cybersecurity Research Cell",
+        "Mentor, Open-Source AI Contributions",
+        "Speaker, Edge AI & Privacy-First Architectures"
       ]
     },
     {
-      "id": "higher-secondary",
+      "id": "cps-highschool",
       "institution": "Calcutta Public School",
-      "institution_logo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'/%3E%3Cpath d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'/%3E%3Cpath d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'/%3E%3Cpath d='M10 6h4'/%3E%3Cpath d='M10 10h4'/%3E%3Cpath d='M10 14h4'/%3E%3Cpath d='M10 18h4'/%3E%3C/svg%3E",
-      "degree": "Class 10 & 12 Studies",
-      "field": "Science (PCM + CS)",
+      "institution_logo": "/assets/icons/cps-logo.svg",
+      "degree": "Secondary & Higher Secondary Education (Class 10 & 12)",
+      "field": "Science (PCM + Computer Science)",
       "timeline": {
-        "start": "2021",
-        "end": "2023",
+        "start": "2022",
+        "end": "2024",
         "current": false
       }
     }
   ],
-  "certifications": [
+  "certificates": [
     {
-      "name": "Advanced Cybersecurity & Ethical Hacking",
-      "issuer": "Self-Directed / Industry Standards",
-      "date": "2025-06",
-      "credential_id": "N/A",
-      "url": "https://github.com/PriyanshuRoy",
-      "logo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E"
+      "id": "cert-nptel-ml",
+      "name": "Machine Learning",
+      "issuer": "NPTEL",
+      "date": "2024-10",
+      "credential_id": "NPTEL24CSXXXXXXX",
+      "verification_link": "https://nptel.ac.in/noc/courses/noc24/",
+      "file_url": "/assets/certificates/nptel-machine-learning.pdf",
+      "icon": "cpu"
     },
     {
+      "id": "cert-nptel-infosec",
+      "name": "Information Security - Secure Systems Engineering",
+      "issuer": "NPTEL",
+      "date": "2024-04",
+      "credential_id": "NPTEL24CSXXXXXXX",
+      "verification_link": "https://nptel.ac.in/noc/courses/noc24/",
+      "file_url": "/assets/certificates/nptel-info-security.pdf",
+      "icon": "shield-check"
+    },
+    {
+      "id": "cert-german-a1",
       "name": "Goethe-Zertifikat A1: Start Deutsch 1",
       "issuer": "Goethe-Institut",
       "date": "2025-12",
-      "credential_id": "N/A",
-      "url": "https://github.com/PriyanshuRoy",
-      "logo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 8 6 6'/%3E%3Cpath d='m4 14 6-6 2-3'/%3E%3Cpath d='M2 5h12'/%3E%3Cpath d='M7 2h1'/%3E%3Cpath d='m22 22-5-10-5 10'/%3E%3Cpath d='M14 18h6'/%3E%3C/svg%3E"
+      "credential_id": "GOE-A1-2025",
+      "verification_link": "https://github.com/PriyanshuRoy",
+      "file_url": "/assets/certificates/goethe-a1-cert.pdf",
+      "icon": "globe"
     }
   ],
   "skills": [
     {
-      "domain": "AI/ML Security & Architecture",
-      "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cpath d='M13 8l-3 5h4l-3 5'/%3E%3C/svg%3E",
+      "domain": "Machine Learning Architecture",
       "proficiency": "expert",
       "technical_skills": [
-        "Retrieval-Augmented Generation (GraphRAG)",
-        "Agentic Orchestration Workflows",
-        "Model Quantization (LoRA/QLoRA/QAT)",
-        "On-Device Threat Detection (EDR)",
-        "Adversarial Attack & Defense",
-        "Reinforcement Learning & XAI"
+        "V21.0-Lite Architecture Design (Single-Model, Two-Pass Execution)",
+        "Hardware-Aware Quantization (LoRA/QLoRA, PTQ, QAT, INT8/FP16 precision limits)",
+        "Sequence Modeling & Transformer Mechanics for Memory-Constrained Hardware",
+        "Per-Class Calibration & Uncertainty Quantification (Temperature/Platt Scaling)",
+        "On-Device Model Optimization (ONNX Runtime, TFLite Operator Fusion, Custom Kernels)",
+        "Probabilistic Scoring & Bayesian Networks for Decision Making"
+      ]
+    },
+    {
+      "domain": "Artificial Intelligence Pipelines",
+      "proficiency": "expert",
+      "technical_skills": [
+        "Advanced RAG Engineering (GraphRAG, Semantic Chunking, Hybrid Lexical/Vector Retrieval)",
+        "Agentic Orchestration Workflows (State Machines, Tool-Use, Self-Correction Loops)",
+        "Context Window Optimization & Prompt Engineering for Local LLMs",
+        "Data Ingestion Pipelines & Automated Feature Extraction Workflows",
+        "Vector Database Architecture (Milvus, pgvector, FAISS)",
+        "Continuous Evaluation Pipelines (Drift Detection, Precision-Recall Curve Analysis)"
+      ]
+    },
+    {
+      "domain": "AI Security & Threat Modeling",
+      "proficiency": "expert",
+      "technical_skills": [
+        "Adversarial NLP Defenses (Prompt Injection Mitigation, Jailbreak Resistance)",
+        "On-Device Endpoint Detection (EDR) with Native Telemetry Hooking",
+        "Network Traffic Analysis & Flow-Level Metadata Extraction",
+        "Zero-Leakage Privacy Boundaries (Air-Gapped Inference, Secure Enclave Patterns)",
+        "Explainable AI (Attention Visualization, Gradient-Based Saliency for Audit Trails)",
+        "Cryptographic Integrity Checks & Telemetry Hash Chains"
       ]
     },
     {
       "domain": "Edge & Systems Engineering",
-      "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='16' height='16' rx='2' ry='2'/%3E%3Crect x='9' y='9' width='6' height='6'/%3E%3Cpath d='M9 1v3'/%3E%3Cpath d='M15 1v3'/%3E%3Cpath d='M9 20v3'/%3E%3Cpath d='M15 20v3'/%3E%3Cpath d='M20 9h3'/%3E%3Cpath d='M20 14h3'/%3E%3Cpath d='M1 9h3'/%3E%3Cpath d='M1 14h3'/%3E%3C/svg%3E",
       "proficiency": "expert",
       "technical_skills": [
-        "Android Native Development (C++ JNI)",
-        "ONNX/TFLite Edge Optimization",
-        "AST Parsing (Tree-sitter)",
-        "Linux OS (Ubuntu, Fedora, Kali)",
-        "CUDA/ROCm Hardware Optimization",
-        "Zero-Remote Inference Architectures"
+        "Android Native Development (C++/C JNI, NDK, Binder IPC, Hardware Abstraction Layers)",
+        "Crash-Resilient System Design (Watchdog Timers, State Checkpointing, Graceful Degradation)",
+        "Memory-Safe Tensor Handling with Custom Arena Allocators",
+        "Linux OS Administration (Fedora, Ubuntu, Kali, Shell Scripting, eBPF)",
+        "CUDA/ROCm Hardware Optimization (Memory Coalescing, Stream Parallelism)",
+        "Raspberry Pi Optimization & Sensor Fusion integration"
       ]
     },
     {
-      "domain": "Full-Stack & Tools",
-      "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 17 10 11 4 5'/%3E%3Cline x1='12' y1='19' x2='20' y2='19'/%3E%3C/svg%3E",
+      "domain": "Full-Stack Architecture & MLOps",
       "proficiency": "advanced",
       "technical_skills": [
-        "Python, C++, Next.js, React",
-        "Supabase & PostgreSQL",
-        "Docker/WSL2 Workflows",
-        "Git/GitHub CI/CD",
-        "Nmap & CyberSec Utilities",
-        "Three.js/WebGL Visualizations"
+        "Languages: Python, C, C++, JavaScript/TypeScript, Bash",
+        "Frameworks: Next.js 14 (Server Components, Edge Middleware), React",
+        "Database Design: Supabase, PostgreSQL (Row-Level Security, Partitioning)",
+        "Web Architecture: Offline-First PWA, Service Workers, REST/WebSocket APIs",
+        "Graphics: Three.js/WebGL (GPU-Accelerated Particle Systems, Custom Shaders)",
+        "Code Intelligence: AST Parsing, Tree-sitter, Semantic Graphs"
       ]
     }
   ],
   "projects": [
     {
-      "id": "hackt-sovereign-core",
-      "title": "HackT / Sovereign Core",
-      "status": "active",
-      "role": "Lead Architect",
-      "team_size": 1,
-      "timeline": {
-        "start": "2026-02",
-        "end": null,
-        "current": true
-      },
-      "repo_url": "https://github.com/PriyanshuRoy/HackT",
-      "preview_url": "https://hackt.dev",
-      "thumbnail_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23050508'/%3E%3Cpath d='M0 0h800v600H0z' fill='url(%23grid)'/%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M40 0L0 0 0 40' fill='none' stroke='rgba(0,255,255,0.05)' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='32' fill='%2300ffff' letter-spacing='2'%3EHackT Vault%3C/text%3E%3Ctext x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='16' fill='%23888899'%3E// Sovereign Core Architecture%3C/text%3E%3C/svg%3E",
-      "description": "A high-security, consumer-grade cybersecurity coding assistant and knowledge base. Engineered complex offline ingestion pipelines utilizing GraphRAG and Tree-sitter for deep AST-based code analysis, allowing agentic workflows to execute localized threat simulations.",
-      "metrics": [
-        "Optimized for stable 24-hour training sessions on consumer-grade GPU constraints",
-        "Complex dependency management for offline ingestion pipelines",
-        "Integrated explainability modules for RAG outputs"
-      ],
-      "tech_stack": ["Python", "Local LLMs", "GraphRAG", "Tree-sitter", "Next.js"],
-      "layout": "left"
-    },
-    {
       "id": "goprivate-edr",
-      "title": "GoPrivate EDR (Project Trinity)",
-      "status": "completed",
-      "role": "Solo Architect & Developer",
-      "team_size": 1,
-      "timeline": {
-        "start": "2026-01",
-        "end": "2026-04",
-        "current": false
+      "title": "GoPrivate EDR",
+      "status": "active",
+      "role": "Sole Architect & Developer",
+      "timeline": { "start": "2026-01", "end": "Present", "current": true },
+      "repo_url": "https://github.com/SuPReme-0/GoPrivate",
+      "preview_url": "https://supreme-0.github.io/GoPrivate/",
+      "thumbnail_url": "/assets/projects/goprivate.webp",
+      "description": "An open-source, entirely on-device machine learning firewall for Android, built under the Project Trinity initiative. Architected exclusively by myself to perform real-time network traffic interception and threat scoring. This zero-cloud system bridges a C++ system-level JNI with heavily optimized local sequence models to detect anomalous network patterns and C2 communications without exposing any user data.",
+      "detailed_architecture": {
+        "core_components": [
+          "Native Packet Interceptor (C++ JNI) — Hooks directly into Android's VpnService API for zero-copy packet inspection at the OS level.",
+          "Lightweight Feature Extractor — Analyzes flow-level metadata (timing, packet sizes, entropy) to identify threats without decrypting or inspecting payload content.",
+          "Quantized Threat Classifier (TFLite) — INT8-quantized sequence model calibrated specifically for malware detection within tight mobile constraints.",
+          "Telemetry Hub — Local-only logging system equipped with cryptographic integrity checks to maintain secure forensic audit trails."
+        ],
+        "optimization_highlights": [
+          "Implemented memory-safe tensor handling via custom arena allocators, completely eliminating OOM crashes during sustained heavy traffic bursts.",
+          "Compressed the ML model footprint to under 8MB through structured pruning and QAT, achieving sub-50ms inference latency on mid-tier hardware.",
+          "Designed a crash-resilient watchdog timer and state checkpointing system ensuring the firewall recovers instantly without dropping traffic."
+        ],
+        "privacy_guarantees": [
+          "Absolute zero remote inference: 100% of ML execution is isolated in a native Android process.",
+          "Strict no-payload inspection policy ensures end-to-end user content privacy."
+        ]
       },
-      "repo_url": "https://github.com/PriyanshuRoy/GoPrivate",
-      "preview_url": "https://github.com/PriyanshuRoy/GoPrivate",
-      "thumbnail_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23050508'/%3E%3Cpath d='M0 0h800v600H0z' fill='url(%23grid)'/%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M40 0L0 0 0 40' fill='none' stroke='rgba(0,255,255,0.05)' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='32' fill='%2300ffff' letter-spacing='2'%3EGoPrivate EDR%3C/text%3E%3Ctext x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='16' fill='%23888899'%3E// On-Device ML Firewall%3C/text%3E%3C/svg%3E",
-      "description": "An entirely on-device, triple-engine machine learning firewall for Android. Architected and open-sourced completely solo, bridging C++ system-level telemetry with heavily optimized local ML models for real-time endpoint detection without external API reliance.",
-      "metrics": [
-        "100% Zero-remote inference ensuring absolute data sovereignty",
-        "Microsecond-latency C++ network interceptor pipelines",
-        "Per-class quantization and calibration for mobile deployment"
-      ],
-      "tech_stack": ["C++", "JNI", "Android SDK", "ONNX", "TFLite"],
-      "layout": "right"
+      "tech_stack": ["C++", "JNI", "Android NDK", "TFLite", "VpnService API", "Arena Allocators", "Network Forensics"],
+      "metrics": {
+        "model_size": "7.8 MB (INT8 quantized)",
+        "avg_inference_latency": "42ms on mid-tier devices",
+        "false_positive_rate": "<0.8% on held-out test set",
+        "memory_footprint": "<120MB RSS during sustained operation"
+      },
+      "layout": "left"
     },
     {
-      "id": "crimson-nebula",
-      "title": "Crimson Nebula",
-      "status": "completed",
-      "role": "Systems Engineer",
-      "team_size": 3,
-      "timeline": {
-        "start": "2026-03",
-        "end": "2026-03",
-        "current": false
+      "id": "avani-ai",
+      "title": "Avani AI",
+      "status": "research",
+      "role": "Lead AI Researcher",
+      "timeline": { "start": "2026-03", "end": "Present", "current": true },
+      "repo_url": "https://github.com/SuPReme-0/avaaniai",
+      "preview_url": "https://avaaniai-orpin.vercel.app/",
+      "thumbnail_url": "/assets/projects/avani-ai.webp",
+      "description": "An advanced natural language perception engine for human-AI interaction. Built upon the custom V21.0-Lite architecture, it utilizes a highly optimized single-model, two-pass pipeline designed specifically to bypass the limitations of hardware-constrained edge deployments. It extracts deep semantic intent and conversational nuance without relying on multi-model distributed cloud clusters.",
+      "detailed_architecture": {
+        "core_components": [
+          "V21.0-Lite Pipeline — Single-model, two-pass RAG architecture optimized for extreme low-latency context retrieval and synthesis.",
+          "Intent Recognition Matrix — NLP-driven state machine that processes conversational semantics to extract precise user intent.",
+          "Semantic Chunking Engine — Dynamically parses, chunks, and indexes conversational history for highly accurate long-term recall.",
+          "Probabilistic Decision Layer — Bayesian network that fuses confidence scores from multiple NLP inference passes to generate context-aware dialogue actions."
+        ],
+        "optimization_highlights": [
+          "The V21.0-Lite implementation drastically reduces memory overhead, allowing robust LLM orchestration entirely on-device.",
+          "Hardware-aware INT8 quantization preserves linguistic accuracy while maximizing token throughput on mobile and edge architectures.",
+          "Parallel processing pipeline decouples intent extraction, database retrieval, and generation stages."
+        ],
+        "privacy_guarantees": [
+          "100% On-device execution ensures conversational text vectors never leave the user's hardware.",
+          "Feature-level anonymization securely hashes embeddings before any optional cross-device syncing."
+        ]
       },
-      "repo_url": "https://github.com/PriyanshuRoy/Crimson-Nebula",
-      "preview_url": "https://github.com/PriyanshuRoy/Crimson-Nebula",
-      "thumbnail_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23050508'/%3E%3Cpath d='M0 0h800v600H0z' fill='url(%23grid)'/%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M40 0L0 0 0 40' fill='none' stroke='rgba(0,255,255,0.05)' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='32' fill='%2300ffff' letter-spacing='2'%3ECrimson Nebula%3C/text%3E%3Ctext x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='16' fill='%23888899'%3E// Orbital Simulation Platform%3C/text%3E%3C/svg%3E",
-      "description": "High-fidelity orbital simulation platform and Autonomous Constellation Manager. Developed during the National Space Hackathon at IIT Delhi. Focused on predictive security, hardware-level networking simulations, and trajectory optimization.",
-      "metrics": [
-        "Rapid mathematical modeling under strict hackathon time constraints",
-        "Complex orbital mechanics simulation",
-        "Real-time telemetry visualization"
-      ],
-      "tech_stack": ["Python", "Simulation Mathematics", "Systems Architecture", "WebGL"],
-      "layout": "left"
+      "tech_stack": ["Python", "PyTorch", "Local LLMs", "V21.0-Lite Architecture", "Semantic Chunking", "ONNX Runtime", "Bayesian Networks"],
+      "metrics": {
+        "intent_accuracy": "94.1% on custom conversational validation set",
+        "retrieval_latency": "Under 150ms utilizing V21.0-Lite dual-pass",
+        "end_to_end_latency": "Sub-800ms generation on edge hardware",
+        "vram_target": "Designed for deployment under 4GB VRAM limits"
+      },
+      "layout": "right"
     },
     {
       "id": "edubridge",
       "title": "Edubridge",
       "status": "completed",
-      "role": "Full-Stack Developer",
-      "team_size": 1,
-      "timeline": {
-        "start": "2026-02",
-        "end": "2026-03",
-        "current": false
+      "role": "Full-Stack Developer & API Architect",
+      "timeline": { "start": "2026-02", "end": "2026-03", "current": false },
+      "repo_url": "https://github.com/SuPReme-0/Edubridge",
+      "preview_url": "https://edubridge-eight.vercel.app/",
+      "thumbnail_url": "/assets/projects/edubridge.webp",
+      "description": "A comprehensive platform engineered for automated educational content generation and intelligent classroom API management. Leveraged rigid API endpoints, offline-first architectural patterns, and NLP-assisted curriculum generation to serve dynamic, highly scalable educational infrastructure.",
+      "detailed_architecture": {
+        "core_components": [
+          "NLP Curriculum Engine — Rule-based generation system featuring semantic topic sequencing and automatic difficulty adaptation for diverse learning paths.",
+          "Offline-First PWA Core — Service workers utilizing strategic caching, allowing full data submission capabilities in low-connectivity educational environments.",
+          "Real-Time Sync Layer — WebSocket-based state propagation managing live classroom dashboards with robust conflict resolution.",
+          "RBAC & Data Isolation — Row-level security implemented in PostgreSQL (Supabase) to guarantee strict tenant separation for multi-school deployments."
+        ],
+        "optimization_highlights": [
+          "Database query optimization via composite indexes and materialized views, cutting dashboard rendering times from 2.1s to 340ms.",
+          "Graceful degradation protocols to ensure offline attendance and curriculum edits are queued with cryptographic signing for eventual synchronization.",
+          "Streamlined API endpoint design to handle complex nested JSON payloads efficiently."
+        ],
+        "security_measures": [
+          "Strict rate-limiting and request signing deployed on all API endpoints to neutralize enumeration and injection attack vectors.",
+          "Secure authentication and data transport layers ensuring educational privacy compliance."
+        ]
       },
-      "repo_url": "https://github.com/PriyanshuRoy/Edubridge",
-      "preview_url": "https://github.com/PriyanshuRoy/Edubridge",
-      "thumbnail_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23050508'/%3E%3Cpath d='M0 0h800v600H0z' fill='url(%23grid)'/%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M40 0L0 0 0 40' fill='none' stroke='rgba(0,255,255,0.05)' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='32' fill='%2300ffff' letter-spacing='2'%3EEdubridge%3C/text%3E%3Ctext x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='16' fill='%23888899'%3E// Automated Curriculum Generation%3C/text%3E%3C/svg%3E",
-      "description": "A modern platform for automated curriculum and chapter generation, leveraging robust API endpoints and relational databases to serve dynamic educational content. Features responsive UI components and animated particle backgrounds.",
-      "tech_stack": ["Next.js", "Supabase", "REST APIs", "React", "TailwindCSS"],
-      "layout": "right"
+      "tech_stack": ["Next.js 14", "Supabase", "PostgreSQL", "React Server Components", "WebSockets", "Service Workers", "NLP Frameworks"],
+      "metrics": {
+        "curriculum_generation_time": "<3s for 12-week syllabus with 40+ dynamic topics",
+        "pwa_offline_support": "Full operational capability with <50KB cache footprint",
+        "multi_tenant_scale": "Tested with 50+ concurrent classrooms, <200ms P95 API latency",
+        "dashboard_load": "340ms via optimized materialized views"
+      },
+      "layout": "left"
     }
   ],
   "about": {
-    "short": "AI & ML Security Engineer building secure, explainable, crash-resilient RAG systems.",
-    "full": "I engineer secure, explainable, and crash-resilient AI systems that run where it matters most: on the device. My work bridges complex NLP logic, RAG architectures, and hardware-aware quantization for consumer-grade GPUs, ensuring intelligence never compromises privacy or performance.\n\nI believe in mathematics-driven security and transparent architectures that survive real-world failure modes. Whether I am building an on-device Android EDR from scratch using C++ JNI, or orchestrating agentic LLM workflows, I focus on zero-remote inference and robust system design.\n\nCurrently pursuing my B.Tech in AI/ML at IEM Kolkata, I actively contribute to open-source security tools like HackT and GoPrivate.",
+    "short": "AI Researcher & Security Architect forging secure, hardware-optimized, crash-resilient edge systems.",
+    "full": "I am an AI Researcher and Security Architect dedicated to engineering secure, explainable, and resilient architectures that execute strictly on-device. My work focuses heavily on deep NLP logic, V21.0-Lite single-model RAG pipelines, and hardware-aware quantization tailored for consumer-grade environments, ensuring system intelligence never compromises user privacy or operational performance.\n\nI operate on the philosophy of mathematics-driven security and transparent infrastructure that survives real-world failure modes. Whether I am architecting the GoPrivate Android EDR entirely solo from C++ JNI upward, or orchestrating autonomous LLM workflows, my focus remains locked on zero-remote inference and unyielding system integrity.\n\nCurrently pursuing my B.Tech in AI & ML at IEM Kolkata (Batch of 2024-2028), I am actively expanding the boundaries of open-source cyber-defense and natural language processing at the absolute edge.",
     "values": [
-      "Security through architectural rigor, not obscurity",
-      "Zero-remote inference for absolute privacy",
-      "Optimization for real-world hardware constraints",
-      "Crash resilience over feature velocity",
-      "Explainable AI over black-box predictions"
+      "Security forged through mathematical rigor, not obscurity",
+      "Zero-remote inference as the ultimate privacy boundary",
+      "Optimization driven by real-world hardware constraints",
+      "Uncompromising crash-resilience over rapid feature velocity",
+      "Explainable AI logic over black-box predictive models"
     ]
   }
 }

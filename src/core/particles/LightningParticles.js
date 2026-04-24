@@ -2,32 +2,33 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 
 /**
- * Industry-Grade Cinematic Lightning System v5.0 (HIGH-VOLTAGE FANTASY)
- * Engineered for the "Obsidian Tempest" aesthetic.
- * * Architectual Upgrades:
- * - Fantasy Plasma Palette: Shifts from Deep Royal Blue to Blinding Ice Blue.
- * - HDR Overdrive: Shader math pushes RGB values to extreme limits to trigger massive volumetric bloom.
- * - Tesla-Coil Branching: Fractal generation tuned for erratic, shattered web-like strikes.
- * - LineSegments Architecture: Guaranteed sharp, continuous plasma arcs without particle gaps.
+ * Industry-Grade Cinematic Lightning System v8.0 (CATACLYSM PROTOCOL)
+ * Upgrades: Volumetric Trunk Stacking, Dynamic Light Pooling, Sky-Splitter Fractals.
  */
 export class LightningParticles {
   constructor(scene, options = {}) {
     this.scene = scene;
     this.config = {
-      maxSegments: options.maxSegments ?? 3000, // Increased for denser webs
+      maxSegments: options.maxSegments ?? 4000, // Boosted for horizontal spider-webbing
       qualityTier: options.qualityTier || 'high',
       enableBranching: options.enableBranching ?? true,
+      maxLights: 3, // Keep light pool small to protect GPU fill-rate
       ...options
     };
 
-    if (this.config.qualityTier === 'low') this.config.maxSegments = 800;
-    else if (this.config.qualityTier === 'medium') this.config.maxSegments = 1500;
+    if (this.config.qualityTier === 'low') this.config.maxSegments = 1000;
+    else if (this.config.qualityTier === 'medium') this.config.maxSegments = 2000;
 
     this.lines = null;
     this.material = null;
     this.geometry = null;
     
-    // Core data buffers (1 segment = 2 vertices)
+    // The link to sync with the EnvironmentShader
+    this.globalFlashIntensity = 0.0; 
+    
+    // Dynamic lighting pool
+    this.lightPool = [];
+    
     const maxVerts = this.config.maxSegments * 2;
     this.data = {
       positions: new Float32Array(maxVerts * 3),
@@ -48,7 +49,6 @@ export class LightningParticles {
     const maxVerts = this.config.maxSegments * 2;
     this.geometry = new THREE.BufferGeometry();
     
-    // Hide all lines initially
     for (let i = 0; i < maxVerts; i++) {
       this.data.positions[i * 3] = 0;
       this.data.positions[i * 3 + 1] = -1000; 
@@ -65,9 +65,8 @@ export class LightningParticles {
       uniforms: {
         uTime: { value: 0 },
         uFlashBoost: { value: 0 },
-        // Deep Fantasy Lighting Palette
-        uCoreColor: { value: new THREE.Color(0xe0f7ff) }, // Blinding Ice Blue / White
-        uEdgeColor: { value: new THREE.Color(0x0044ff) }  // Deep Royal Fantasy Blue
+        uCoreColor: { value: new THREE.Color(0xffffff) }, // Pure blinding white
+        uEdgeColor: { value: new THREE.Color(0x00ccff) }  // Electric Cyan/Blue
       },
       vertexShader: `
         attribute float aLife;
@@ -87,13 +86,12 @@ export class LightningParticles {
             return;
           }
 
-          // VIOLENT STROBE EFFECT
-          // Shared seed per strike ensures the entire branch flickers together
-          float strobeNoise = fract(sin(uTime * 50.0 + aSeed) * 43758.5453);
-          float strobe = step(0.25, strobeNoise); // 75% chance to be ON per frame (denser plasma)
+          // VIOLENT STROBE: High-frequency noise matched to the bolt's seed
+          float strobeNoise = fract(sin(uTime * 60.0 + aSeed) * 43758.5453);
+          float strobe = step(0.15, strobeNoise); // 85% ON chance for brutal flickering
           
-          // Exponential fade out for that snappy electrical decay
-          vAlpha = pow(aLife, 1.5) * strobe; 
+          // Fast attack, exponential decay
+          vAlpha = pow(aLife, 2.0) * strobe; 
           
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mvPosition;
@@ -110,18 +108,16 @@ export class LightningParticles {
         void main() {
           if (vAlpha < 0.01) discard;
           
-          // Color shifts from Deep Blue on the fringes to Ice White at the core
           vec3 baseColor = mix(uEdgeColor, uCoreColor, vIntensity);
           
-          // HDR OVERDRIVE: Push values far past 1.0 so the SceneManager's Bloom catches it
-          // This creates the volumetric "glow" without needing actual cylinder geometry
-          float hdrMultiplier = 8.0 + (vIntensity * 12.0) + (uFlashBoost * 25.0);
+          // CATACLYSMIC HDR OVERDRIVE
+          float hdrMultiplier = 15.0 + (vIntensity * 20.0) + (uFlashBoost * 40.0);
           
           gl_FragColor = vec4(baseColor * hdrMultiplier, vAlpha);
         }
       `,
       transparent: true,
-      blending: THREE.AdditiveBlending, // Light adds to light (burns brighter when overlapping)
+      blending: THREE.AdditiveBlending, 
       depthWrite: false,
       depthTest: true
     });
@@ -129,6 +125,13 @@ export class LightningParticles {
     this.lines = new THREE.LineSegments(this.geometry, this.material);
     this.lines.frustumCulled = false;
     this.scene.add(this.lines);
+
+    // Initialize Light Pool
+    for(let i=0; i < this.config.maxLights; i++) {
+        const light = new THREE.PointLight(0x00ccff, 0, 150);
+        this.lightPool.push({ light: light, active: false, life: 0 });
+        this.scene.add(light);
+    }
   }
 
   _writeSegment(p1, p2, life, intensity, seed) {
@@ -148,10 +151,8 @@ export class LightningParticles {
 
     this.data.life[vIdx1] = life;
     this.data.life[vIdx2] = life;
-
     this.data.intensity[vIdx1] = intensity;
     this.data.intensity[vIdx2] = intensity;
-
     this.data.seed[vIdx1] = seed;
     this.data.seed[vIdx2] = seed;
   }
@@ -160,46 +161,52 @@ export class LightningParticles {
     this._writeSegment(p1, p2, life, intensity, seed);
 
     if (isTrunk) {
-      // Micro-jitters simulate thick, multi-arc main trunks
-      const offset1 = new THREE.Vector3((Math.random()-0.5)*0.4, (Math.random()-0.5)*0.4, (Math.random()-0.5)*0.4);
-      this._writeSegment(p1.clone().add(offset1), p2.clone().add(offset1), life, intensity * 0.9, seed);
-      
-      const offset2 = new THREE.Vector3((Math.random()-0.5)*0.4, (Math.random()-0.5)*0.4, (Math.random()-0.5)*0.4);
-      this._writeSegment(p1.clone().add(offset2), p2.clone().add(offset2), life, intensity * 0.8, seed);
+      // VOLUMETRIC STACKING: Duplicate main trunk lines tightly to multiply HDR bloom
+      for(let i=0; i<3; i++) {
+          const offset = new THREE.Vector3((Math.random()-0.5)*0.8, (Math.random()-0.5)*0.8, (Math.random()-0.5)*0.8);
+          this._writeSegment(p1.clone().add(offset), p2.clone().add(offset), life, intensity * 0.9, seed);
+      }
     }
   }
 
-  _generateBoltPath(start, end, segments, isBranch, boltSeed) {
+  _generateBoltPath(start, end, segments, isBranch, boltSeed, altitudeY) {
     let currentPos = start.clone();
     const totalVector = end.clone().sub(start);
     const stepVector = totalVector.divideScalar(segments);
     
-    // Increased jitter for highly erratic, Tesla-coil style paths
-    const jitterMagnitude = stepVector.length() * 1.2;
-    
-    const intensity = isBranch ? 0.3 + Math.random() * 0.4 : 1.0;
-    const lifeDuration = isBranch ? 0.5 : 0.8; // Branches burn out slightly faster
+    const jitterMagnitude = stepVector.length() * (isBranch ? 1.8 : 1.2);
+    const intensity = isBranch ? 0.3 + Math.random() * 0.3 : 1.0;
+    const lifeDuration = isBranch ? 0.4 + Math.random() * 0.2 : 0.8; 
 
     for (let i = 0; i < segments; i++) {
       let nextPos = currentPos.clone().add(stepVector);
       
-      // Chaotic spatial displacement
-      nextPos.x += (Math.random() - 0.5) * jitterMagnitude;
-      nextPos.y += (Math.random() - 0.5) * jitterMagnitude * 0.8;
-      nextPos.z += (Math.random() - 0.5) * jitterMagnitude;
+      // SKY-SPLITTER BIAS: High altitude branching prefers horizontal spread
+      let spreadX = (Math.random() - 0.5) * jitterMagnitude;
+      let spreadZ = (Math.random() - 0.5) * jitterMagnitude;
+      let spreadY = (Math.random() - 0.5) * jitterMagnitude;
+      
+      if (currentPos.y > altitudeY * 0.7) {
+          spreadX *= 2.5; 
+          spreadZ *= 2.5;
+          spreadY *= 0.3; // Flattens it out across the sky
+      }
+
+      nextPos.x += spreadX;
+      nextPos.y += spreadY;
+      nextPos.z += spreadZ;
 
       this._addSegment(currentPos, nextPos, lifeDuration, intensity, boltSeed, !isBranch);
 
-      // Aggressive Hierarchical Branching
-      if (this.config.enableBranching && !isBranch && Math.random() > 0.6) { // 40% chance to branch per segment
-        const branchLength = Math.floor((segments - i) * 0.7);
+      if (this.config.enableBranching && Math.random() > (isBranch ? 0.8 : 0.4)) { 
+        const branchLength = Math.floor((segments - i) * (isBranch ? 0.5 : 0.8));
         if (branchLength > 2) {
           const branchEnd = nextPos.clone().add(new THREE.Vector3(
-            (Math.random() - 0.5) * 30,
-            -10 - Math.random() * 20,
-            (Math.random() - 0.5) * 30
+            (Math.random() - 0.5) * 60,
+            -20 - Math.random() * 30,
+            (Math.random() - 0.5) * 60
           ));
-          this._generateBoltPath(nextPos, branchEnd, branchLength, true, boltSeed);
+          this._generateBoltPath(nextPos, branchEnd, branchLength, true, boltSeed, altitudeY);
         }
       }
 
@@ -207,26 +214,45 @@ export class LightningParticles {
     }
   }
 
-  _triggerStrike(targetPos = null) {
+  _activateLight(position, intensity) {
+      const freeLight = this.lightPool.find(l => !l.active);
+      if (freeLight) {
+          freeLight.active = true;
+          freeLight.life = 1.0;
+          freeLight.light.position.copy(position);
+          freeLight.light.intensity = intensity * 50.0;
+      }
+  }
+
+  _triggerStrike(targetPos = null, isCataclysm = false) {
     const boltSeed = Math.random() * 100.0;
 
-    const startX = (Math.random() - 0.5) * 120;
-    const startZ = -30 + (Math.random() - 0.5) * 80;
-    const startPos = new THREE.Vector3(startX, 50 + Math.random() * 20, startZ);
+    const startX = (Math.random() - 0.5) * 200;
+    const startZ = -50 + (Math.random() - 0.5) * 100;
+    const spawnAltitude = 80 + Math.random() * 40;
+    const startPos = new THREE.Vector3(startX, spawnAltitude, startZ);
 
     let endPos;
     if (targetPos) {
       endPos = targetPos.clone();
     } else {
       endPos = new THREE.Vector3(
-        startX + (Math.random() - 0.5) * 50,
-        -10, // Ocean level
-        startZ + (Math.random() - 0.5) * 50
+        startX + (Math.random() - 0.5) * 80,
+        -10, 
+        startZ + (Math.random() - 0.5) * 80
       );
     }
 
-    const segments = 15 + Math.floor(Math.random() * 15);
-    this._generateBoltPath(startPos, endPos, segments, false, boltSeed);
+    // Cataclysm strikes have way more segments to allow dense spider-webbing
+    const segments = isCataclysm ? 30 : 15 + Math.floor(Math.random() * 10);
+    this._generateBoltPath(startPos, endPos, segments, false, boltSeed, spawnAltitude);
+
+    // Illuminate the environment
+    this._activateLight(startPos, isCataclysm ? 2.0 : 1.0); // Flash the clouds
+    if (targetPos) this._activateLight(targetPos, 2.0);     // Flash the impact point
+    
+    // Global flash for the EnvironmentShader
+    this.globalFlashIntensity = isCataclysm ? 1.0 : 0.5;
   }
 
   update(delta, params = {}) {
@@ -235,21 +261,37 @@ export class LightningParticles {
 
     this.material.uniforms.uTime.value += delta;
 
-    // Ambient random strikes
-    const strikeProbability = delta * this.stormIntensity * 0.8;
+    const strikeProbability = delta * this.stormIntensity * 0.6;
     if (Math.random() < strikeProbability) {
       this._triggerStrike();
+    }
+
+    // Decay the global flash variable smoothly so the environment fades nicely
+    if (this.globalFlashIntensity > 0) {
+        this.globalFlashIntensity -= delta * 3.0;
+        this.globalFlashIntensity = Math.max(0, this.globalFlashIntensity);
+    }
+
+    // Update physical point lights
+    for(let l of this.lightPool) {
+        if(l.active) {
+            l.life -= delta * 4.0;
+            l.light.intensity = l.life * 50.0;
+            if(l.life <= 0) {
+                l.active = false;
+                l.light.intensity = 0;
+            }
+        }
     }
 
     let needsUpdate = false;
     const maxVerts = maxSegments * 2;
     for (let i = 0; i < maxVerts; i++) {
       if (this.data.life[i] > 0) {
-        // Fast decay for that explosive visual snap
         this.data.life[i] -= delta * 2.5; 
         
         if (this.data.life[i] <= 0) {
-          this.data.positions[i * 3 + 1] = -1000; // Hide underground
+          this.data.positions[i * 3 + 1] = -1000; 
           this.data.life[i] = 0;
         }
         needsUpdate = true;
@@ -263,23 +305,31 @@ export class LightningParticles {
   }
 
   triggerBurst(targetPos = null) {
-    const burstCount = 4 + Math.floor(Math.random() * 4); // Multiple overlapping strikes
-    for (let i = 0; i < burstCount; i++) {
-      setTimeout(() => this._triggerStrike(targetPos), i * 50);
+    // The Sky-Splitter Sequence
+    const burstCount = 6 + Math.floor(Math.random() * 4); 
+    
+    // One massive cataclysmic strike
+    this._triggerStrike(targetPos, true);
+
+    // Followed by rapid after-strikes
+    for (let i = 1; i < burstCount; i++) {
+      setTimeout(() => this._triggerStrike(targetPos, false), i * 60 + (Math.random()*20));
     }
     
-    // Massive HDR flash overdrive
     gsap.killTweensOf(this.material.uniforms.uFlashBoost);
-    this.material.uniforms.uFlashBoost.value = 3.0;
+    this.material.uniforms.uFlashBoost.value = 5.0; // Extreme HDR punch
     gsap.to(this.material.uniforms.uFlashBoost, { 
       value: 0, 
-      duration: 0.8, 
-      ease: 'power3.out' 
+      duration: 1.2, 
+      ease: 'power4.out' 
     });
   }
 
   dispose() {
-    if (this.scene && this.lines) this.scene.remove(this.lines);
+    if (this.scene) {
+        if (this.lines) this.scene.remove(this.lines);
+        for(let l of this.lightPool) this.scene.remove(l.light);
+    }
     this.geometry?.dispose();
     this.material?.dispose();
     this.lines = null;

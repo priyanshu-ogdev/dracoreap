@@ -3,169 +3,18 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import gsap from 'gsap';
 
 import { EnvironmentShader } from './EnvironmentShader.js'; 
 
-/* ─── Embedded Sky Lightning (Sparse & Powerful) ─────────────────────────── */
-const ENV = {
-  background: 0x03020a,
-  fog:        0x05030e,
-  lightning:  {
-    core: new THREE.Color(0xe0f7ff),
-    edge: new THREE.Color(0x0033ff),
-  },
-};
-
-class SkyLightning {
-  constructor(scene) {
-    this.scene   = scene;
-    this.maxSegs = 1000; 
-    const mv     = this.maxSegs * 2;
-
-    this._pos  = new Float32Array(mv * 3).fill(0);
-    this._life = new Float32Array(mv).fill(0);
-    this._int  = new Float32Array(mv).fill(0);
-    this._seed = new Float32Array(mv).fill(0);
-    for (let i = 0; i < mv; i++) this._pos[i*3+1] = -99999;
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position',   new THREE.BufferAttribute(this._pos,  3));
-    geo.setAttribute('aLife',      new THREE.BufferAttribute(this._life, 1));
-    geo.setAttribute('aIntensity', new THREE.BufferAttribute(this._int,  1));
-    geo.setAttribute('aSeed',      new THREE.BufferAttribute(this._seed, 1));
-
-    const mat = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime:  { value: 0 },
-        uFlash: { value: 0 },
-        uCore:  { value: ENV.lightning.core.clone() },
-        uEdge:  { value: ENV.lightning.edge.clone() },
-      },
-      vertexShader: `
-        attribute float aLife;
-        attribute float aIntensity;
-        attribute float aSeed;
-        uniform   float uTime;
-        varying   float vAlpha;
-        varying   float vInt;
-        void main() {
-          vInt = aIntensity;
-          if (aLife <= 0.0) { gl_Position = vec4(0,0,-1000,1); return; }
-          float s = step(0.18, fract(sin(uTime * 58.0 + aSeed) * 43758.5));
-          vAlpha  = pow(aLife, 1.3) * s;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform vec3  uCore, uEdge;
-        uniform float uFlash;
-        varying float vAlpha, vInt;
-        void main() {
-          if (vAlpha < 0.01) discard;
-          vec3 col = mix(uEdge, uCore, vInt);
-          // Massive multiplier for flash to make strikes blinding
-          gl_FragColor = vec4(col * (4.0 + vInt * 10.0 + uFlash * 25.0), vAlpha);
-        }
-      `,
-      transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
-    });
-
-    this.lines = new THREE.LineSegments(geo, mat);
-    this.lines.frustumCulled = false;
-    scene.add(this.lines);
-
-    this._nxt   = 0;
-    this._timer = 0;
-    // Set a high initial threshold so it doesn't strike immediately on load
-    this._nextStrikeTime = 10.0 + Math.random() * 15.0; 
-  }
-
-  _seg(p1, p2, life, intensity, seed) {
-    const s = this._nxt++ % this.maxSegs;
-    const a = s*2, b = s*2+1;
-    this._pos[a*3]=p1.x; this._pos[a*3+1]=p1.y; this._pos[a*3+2]=p1.z;
-    this._pos[b*3]=p2.x; this._pos[b*3+1]=p2.y; this._pos[b*3+2]=p2.z;
-    this._life[a]=this._life[b]=life;
-    this._int[a]=this._int[b]=intensity;
-    this._seed[a]=this._seed[b]=seed;
-  }
-
-  _bolt(start, end, segs, branch, seed) {
-    let cur = start.clone();
-    const st  = end.clone().sub(start).divideScalar(segs);
-    const jit = st.length() * (branch ? 0.5 : 1.0);
-    const lf  = branch ? (0.2 + Math.random() * 0.2) : (0.5 + Math.random() * 0.5); // Longer lingering life
-    const it  = branch ? (0.2 + Math.random() * 0.3) : 1.0; // Stronger core
-
-    for (let i = 0; i < segs; i++) {
-      const nxt = cur.clone().add(st);
-      nxt.x += (Math.random()-.5)*jit; nxt.y += (Math.random()-.5)*jit*.55; nxt.z += (Math.random()-.5)*jit;
-      this._seg(cur, nxt, lf, it, seed);
-      if (!branch) {
-        const off = new THREE.Vector3((Math.random()-.5)*.2,(Math.random()-.5)*.2,(Math.random()-.5)*.2);
-        this._seg(cur.clone().add(off), nxt.clone().add(off), lf, it*.5, seed);
-      }
-      if (!branch && Math.random() > 0.7) {
-        const bl = Math.max(3, Math.floor((segs-i)*.5));
-        this._bolt(nxt, nxt.clone().add(new THREE.Vector3((Math.random()-.5)*15,(Math.random()*-20-4),(Math.random()-.5)*15)), bl, true, seed);
-      }
-      cur = nxt;
-    }
-  }
-
-  strike(targetPos) {
-    const seed = Math.random() * 100;
-    const s    = new THREE.Vector3((Math.random()-.5)*40, 25+Math.random()*20, -35+Math.random()*40);
-    const e    = targetPos
-      ? targetPos.clone().add(new THREE.Vector3((Math.random()-.5)*2, Math.random()*2, (Math.random()-.5)*2))
-      : new THREE.Vector3((Math.random()-.5)*15, -10, (Math.random()-.5)*15);
-    this._bolt(s, e, 8+Math.floor(Math.random()*8), false, seed);
-  }
-
-  burst(targetPos, count = 3) {
-    for (let i = 0; i < count; i++) setTimeout(() => this.strike(targetPos), i * 75);
-    gsap.killTweensOf(this.lines.material.uniforms.uFlash);
-    // Extreme flash value for a blinding, powerful strike
-    this.lines.material.uniforms.uFlash.value = 5.0;
-    gsap.to(this.lines.material.uniforms.uFlash, { value: 0, duration: 1.5, ease: 'power2.out' });
-  }
-
-  update(delta) {
-    this._timer += delta;
-    
-    // Sparse, powerful ambient lightning. Triggers randomly every 10 to 25 seconds.
-    if (this._timer > this._nextStrikeTime) {
-      this.burst(null, Math.floor(Math.random() * 3) + 1); // 1 to 3 bolts
-      this._timer = 0;
-      this._nextStrikeTime = 10.0 + Math.random() * 15.0; 
-    }
-
-    let dirty = false;
-    const mv  = this.maxSegs * 2;
-    for (let i = 0; i < mv; i++) {
-      if (this._life[i] > 0) {
-        this._life[i] -= delta * 2.0; // Slower fade for better persistence of vision
-        if (this._life[i] <= 0) { this._pos[i*3+1] = -99999; this._life[i] = 0; }
-        dirty = true;
-      }
-    }
-    if (dirty) {
-      this.lines.geometry.attributes.position.needsUpdate = true;
-      this.lines.geometry.attributes.aLife.needsUpdate    = true;
-    }
-    this.lines.material.uniforms.uTime.value += delta;
-  }
-
-  dispose() { this.scene.remove(this.lines); this.lines.geometry.dispose(); this.lines.material.dispose(); }
-}
-
-/* ─── SceneManager ───────────────────────────────────────────────────────── */
-
+/**
+ * Industry-Grade Cinematic Scene Manager v10.0 (OBSIDIAN TEMPEST)
+ * Acts as the master clock and WebGL orchestrator for the cinematic systems.
+ * Upgrades: Procedural IBL (Fixes Black Dragon), Precision sync, and Atmospheric Flash.
+ */
 export class SceneManager {
   static QualityTier = {
     LOW: { name: 'low', antialias: false, shadows: false, postProcessing: false, pixelRatioCap: 1.0, bloomStrength: 0, shadowResolution: 512 },
-    MEDIUM: { name: 'medium', antialias: true, shadows: true, postProcessing: true, pixelRatioCap: 1.5, bloomStrength: 1.0, shadowResolution: 1024 },
+    MEDIUM: { name: 'medium', antialias: true, shadows: true, postProcessing: true, pixelRatioCap: 1.5, bloomStrength: 0.8, shadowResolution: 1024 },
     HIGH: { name: 'high', antialias: true, shadows: true, postProcessing: true, pixelRatioCap: 2.0, bloomStrength: 1.2, shadowResolution: 2048 },
     ULTRA: { name: 'ultra', antialias: true, shadows: true, postProcessing: true, pixelRatioCap: 2.0, bloomStrength: 1.5, shadowResolution: 4096 },
   };
@@ -181,30 +30,30 @@ export class SceneManager {
       enableShadows: options.enableShadows ?? true,
       autoAdjustQuality: options.autoAdjustQuality ?? true,
       enableFallback: options.enableFallback ?? true,
-      cameraIntroPos: new THREE.Vector3(0, 2.5, 3.5),
-      cameraCruisePos: new THREE.Vector3(0, 2,  14),
       stormIntensity: 0.7,
       ...tierConfig,
       ...options,
     };
 
+    // Core Three.js
     this.scene = null;
     this.camera = null;
     this.renderer = null;
     this.composer = null;
     this.clock = new THREE.Clock(); 
     
+    // Cinematic Systems (Injected later)
     this.environment = null; 
-    this._sky = null;
+    this.cameraController = null;
+    this.dragonController = null;
+    this.lightning = null;
+    this.flames = null;
 
+    // State
     this.isInitialized = false;
     this.isContextLost = false;
     this.fallbackMode = false;
-    this._introComplete  = false;
     this._scrollProgress = 0;
-    
-    // Kept for Environment Shader tracking, updated externally by main.js
-    this._dragonWorldPos = new THREE.Vector3(0, 0, 0);
     
     this.performance = { startTime: 0, frameCount: 0, lastFpsCheck: performance.now(), currentFps: 60, consecutiveLowFps: 0 };
     this._eventListeners = {};
@@ -244,7 +93,7 @@ export class SceneManager {
   }
 
   async setup() {
-    console.log('[SceneManager] Igniting Cataclysm Protocol Stage v8.4 (Decoupled Canvas)...');
+    console.log('[SceneManager] Stage Armed. Synchronized with Protocol v10.0');
     
     try {
       this._applyCanvasStyles();
@@ -255,24 +104,28 @@ export class SceneManager {
       if (this.config.autoAdjustQuality && this.capabilities.performance === 'low') this._applyQualityTier('low');
       else this._applyQualityTier(this.config.quality);
       
+      await this._setupRenderer(); // MUST setup renderer before PMREM
       await this._setupScene();
       await this._setupCamera();
-      await this._setupLighting();
-      await this._setupRenderer();
+      
+      // ⚡ CRITICAL FIX: Generate environment reflection map for the dragon's scales
+      this._setupEnvironmentMap();
+
+      await this._setupLighting();      
       
       if (this.config.postProcessing && this.config.enablePostProcessing) {
         await this._setupPostProcessing();
       }
 
-      // 🌊 NATIVE ENVIRONMENT INTEGRATION
+      // Initialize the core environment (Void + Ocean)
       this.environment = new EnvironmentShader(this.scene, this.renderer, this.config);
+      
+      // 🛑 THE CRITICAL FIX: Prevent Three.js from deleting the sky and push it back
       if (this.environment.mesh) {
-        this.environment.mesh.frustumCulled = false; 
+        this.environment.mesh.frustumCulled = false;
+        this.environment.mesh.renderOrder = -1000;
       }
-
-      // ⚡ SPARSE SKY LIGHTNING
-      this._sky = new SkyLightning(this.scene);
-
+      
       this._setupEventHandlers();
       
       this.isInitialized = true;
@@ -288,13 +141,39 @@ export class SceneManager {
     }
   }
 
+  /**
+   * Generates a virtual lighting studio in the background.
+   * This is REQUIRED for MeshPhysicalMaterial to reflect color properly.
+   */
+  _setupEnvironmentMap() {
+    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    pmremGenerator.compileEquirectangularShader();
+    
+    // Create a virtual "Studio" scene for reflection data
+    const envScene = new THREE.Scene();
+    const bg = new THREE.Mesh(
+      new THREE.SphereGeometry(5, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0x111111, side: THREE.BackSide })
+    );
+    envScene.add(bg);
+
+    // Add high-contrast white light sources for the chrome/metallic parts to reflect
+    const light1 = new THREE.PointLight(0xffffff, 50);
+    light1.position.set(5, 5, 5);
+    envScene.add(light1);
+
+    const envMap = pmremGenerator.fromScene(envScene).texture;
+    this.scene.environment = envMap;
+    this.scene.environmentIntensity = 1.0;
+  }
+
   async _enableFallbackMode() {
     this.fallbackMode = true;
     this.config.enablePostProcessing = false;
     this.config.enableShadows = false;
     
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x05070a); 
+    this.scene.background = new THREE.Color('#010409'); 
     
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.set(0, 3, 12);
@@ -318,27 +197,38 @@ export class SceneManager {
 
   async _setupScene() {
     this.scene = new THREE.Scene();
-    this.scene.name = 'ObsidianTempest';
-    this.scene.background = new THREE.Color(0x05070a); 
-    if (!this.fallbackMode) {
-      this.scene.fog = new THREE.FogExp2(0x05070a, 0.015);
-    }
-    this.scene.matrixAutoUpdate = true;
+    this.scene.name = 'ObsidianTempest_Stage';
+    this.scene.background = new THREE.Color('#010205'); 
   }
 
   async _setupCamera() {
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
     this.camera.name = 'CinematicCamera';
-    this.camera.position.copy(this.config.cameraIntroPos);
-    this.camera.lookAt(0, 1.5, 0);
+    this.camera.position.set(0, 1.5, 6);
   }
 
   async _setupLighting() {
-    const ambient = new THREE.AmbientLight(0x0a0c16, 0.8);
-    const dir = new THREE.DirectionalLight(0xbaccff, 1.5);
-    dir.position.set(-10, 20, 10);
-    this.scene.add(ambient, dir);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.2);
+    this.scene.add(ambient);
+
+    // Key Light to showcase the Dragon's base colors
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+    keyLight.position.set(10, 15, 10);
+    keyLight.castShadow = this.config.enableShadows;
+    if (this.config.enableShadows) {
+      keyLight.shadow.mapSize.width = this.config.shadowResolution;
+      keyLight.shadow.mapSize.height = this.config.shadowResolution;
+      keyLight.shadow.camera.near = 0.5;
+      keyLight.shadow.camera.far = 30;
+      keyLight.shadow.bias = -0.0005;
+    }
+    this.scene.add(keyLight);
+
+    // ⚡ FIX: Replaced the overpowering blue light with a Golden rim light
+    const rimLight = new THREE.DirectionalLight('#ffc800', 1.0);
+    rimLight.position.set(-10, 10, -10);
+    this.scene.add(rimLight);
   }
 
   async _setupRenderer() {
@@ -348,10 +238,11 @@ export class SceneManager {
       alpha: false, 
       powerPreference: 'high-performance',
       stencil: false,
+      precision: 'highp' // ⚡ CRITICAL FIX: Forces High Precision to avoid Shader Errors
     });
 
     this.renderer.sortObjects = true;
-    this.renderer.setClearColor(new THREE.Color(0x05070a), 1.0);
+    this.renderer.setClearColor(new THREE.Color('#010205'), 1.0);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, this.config.pixelRatioCap));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     
@@ -387,16 +278,14 @@ export class SceneManager {
       this.composer.setPixelRatio(Math.min(window.devicePixelRatio, this.config.pixelRatioCap));
 
       const renderPass = new RenderPass(this.scene, this.camera);
-      renderPass.clearColor = new THREE.Color(0x05070a);
-      renderPass.clearAlpha = 1.0;
       this.composer.addPass(renderPass);
 
       if (this.config.bloomStrength > 0) {
         this._bloomPass = new UnrealBloomPass(
           new THREE.Vector2(window.innerWidth, window.innerHeight),
           this.config.bloomStrength, 
-          0.8,                       
-          1.8 // Strict threshold
+          0.6,
+          1.5  
         );
         this.composer.addPass(this._bloomPass);
       }
@@ -410,69 +299,20 @@ export class SceneManager {
       this.config.postProcessing = false;
     }
   }
+  
+  injectControllers(cameraCtrl, dragonCtrl, lightningVFX, flamesVFX) {
+      this.cameraController = cameraCtrl;
+      this.dragonController = dragonCtrl;
+      this.lightning = lightningVFX;
+      this.flames = flamesVFX;
+  }
 
-  /* ─── Public API for External Control (Called by main.js / Dragon) ─────── */
-
-  playIntroCinematic() {
-    this.renderer.toneMappingExposure = 2.4;
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        this._introComplete = true;
-      }
-    });
-
-    tl.to({}, { duration: 1.5 });
+  setScrollProgress(progress) {
+    this._scrollProgress = Math.min(1, Math.max(0, progress));
     
-    tl.to(this.camera.position, {
-      x: this.config.cameraCruisePos.x,
-      y: this.config.cameraCruisePos.y,
-      z: this.config.cameraCruisePos.z,
-      duration: 1.3, ease: 'power2.inOut',
-    }, 4.5);
-    
-    tl.to(this.renderer, {
-      toneMappingExposure: 1.0, duration: 1.3, ease: 'power2.out',
-    }, '<');
-
-    tl.add(() => {
-      gsap.to({}, { 
-        duration: 1.3, 
-        onUpdate: () => this.camera.lookAt(0, 1.5, 0) 
-      });
-    }, 4.5);
-
-    tl.totalDuration(5.8);
+    if (this.cameraController) this.cameraController.setScrollProgress(this._scrollProgress);
+    // Dragon is autonomous, no longer scrubbed
   }
-
-  triggerAtmosphericFlash(intensity = 2.0, duration = 1.0) {
-    if (!this.renderer || this.fallbackMode) return;
-    gsap.killTweensOf(this.renderer);
-    this.renderer.toneMappingExposure = intensity;
-    gsap.to(this.renderer, {
-      toneMappingExposure: 1.0,
-      duration: duration,
-      ease: 'expo.out'
-    });
-  }
-
-  triggerSkyLightning(pos, count = 3) {
-    if (this._sky) this._sky.burst(pos, count);
-  }
-
-  onScroll(scrollProgress) {
-    if (!this._introComplete) return;
-    this._scrollProgress = Math.min(1, Math.max(0, scrollProgress));
-    
-    const targetY = this.config.cameraCruisePos.y + this._scrollProgress * 1.8;
-    gsap.to(this.camera.position, { y: targetY, duration: 0.9, ease: 'power1.out', overwrite: 'auto' });
-  }
-
-  updateDragonTracking(worldPos) {
-    if (worldPos) this._dragonWorldPos.copy(worldPos);
-  }
-
-  /* ──────────────────────────────────────────────────────────────────────── */
 
   async _setupEventHandlers() {
     let resizeTimeout;
@@ -517,28 +357,33 @@ export class SceneManager {
     if (this.isContextLost || !this.isInitialized) return;
     this._updatePerformanceMetrics();
 
-    const delta = this.clock.getDelta();
+    const delta = Math.min(this.clock.getDelta(), 0.1); 
 
-    const currentFlash = Math.max(0, this.renderer.toneMappingExposure - 1.0);
+    const currentFlash = this.lightning ? this.lightning.globalFlashIntensity : 0;
     
-    // Tick the environment
+    // ⚡ FIX: Sync global exposure to the lightning flashes for massive impact
+    if (currentFlash > 0.1) {
+        this.renderer.toneMappingExposure = 1.0 + (currentFlash * 1.5);
+    } else {
+        this.renderer.toneMappingExposure = THREE.MathUtils.lerp(this.renderer.toneMappingExposure, 1.0, 0.1);
+    }
+
+    const dragonPos = this.dragonController ? this.dragonController.dragonPosition : null;
+
+    if (this.cameraController) this.cameraController.update(delta, dragonPos);
+    if (this.dragonController) this.dragonController.update(delta);
+    if (this.lightning) this.lightning.update(delta, { stormIntensity: this.config.stormIntensity });
+    if (this.flames) this.flames.update(delta, { dragonPosition: dragonPos });
+
     if (this.environment) {
       this.environment.update(delta, {
         scrollProgress: this._scrollProgress,
         stormIntensity: this.config.stormIntensity,
         lightningFlash: currentFlash,
         camera: this.camera,
-        dragonPosition: this._dragonWorldPos
+        dragonPosition: dragonPos || new THREE.Vector3(0,0,0)
       });
     }
-
-    // Tick the sky lightning
-    if (this._sky) {
-      this._sky.update(delta); // Updates random strikes and fades out active ones
-    }
-
-    const lookTarget = this._dragonWorldPos.clone().add(new THREE.Vector3(0, 0.5, 0));
-    if (this._introComplete) this.camera.lookAt(lookTarget);
 
     try {
       if (this.composer && this.config.postProcessing && !this.fallbackMode) {
@@ -616,9 +461,15 @@ export class SceneManager {
   }
 
   dispose() {
+    this.stopLoop();
     if (this._cleanupHandlers) this._cleanupHandlers();
+    
     if (this.environment) this.environment.dispose();
-    if (this._sky) this._sky.dispose();
+    if (this.lightning) this.lightning.dispose();
+    if (this.flames) this.flames.dispose();
+    if (this.cameraController) this.cameraController.dispose();
+    if (this.dragonController) this.dragonController.dispose();
+
     if (this.composer) { this.composer.dispose(); this.composer = null; }
     if (this.renderer) {
       this.renderer.dispose();

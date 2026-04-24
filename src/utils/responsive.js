@@ -1,11 +1,11 @@
 /**
- * Industry-Grade Hardware Governor & Responsive Manager v4.0
- * Engineered for the Obsidian Tempest UI layer.
- * * Architectual Upgrades:
- * - Thermal Throttling Prevention: Aggressive devicePixelRatio capping for high-DPI mobile screens.
- * - Synced VFX Limits: Particle thresholds aligned perfectly with InstancedMesh (Flames v6) and LineSegments (Lightning v4).
- * - Memory-Safe Profiling: Handles edge cases where navigator.deviceMemory is undefined (Firefox/Safari).
- * - Debounce Optimization: Clean layout shift broadcasting to prevent DOM thrashing on orientation change.
+ * Industry-Grade Hardware Governor & Responsive Manager v6.0 (OBSIDIAN TEMPEST)
+ * Engineered for the master UI and WebGL orchestration.
+ * * Architectural Upgrades:
+ * - Mobile URL-Bar Defense: Silently absorbs vertical micro-resizes triggered by mobile browser address bars to prevent WebGL layout thrashing.
+ * - True Viewport Engine: Calculates and injects `--vh` into the CSS root to fix the notorious mobile `100vh` scrolling bug.
+ * - Aggressive Thermal Capping: Strict DPR limits for high-density mobile displays to prevent thermal throttling and battery drain.
+ * - Async Battery Defense: Safely polls battery APIs to drop WebGL quality before the device dies.
  */
 class ResponsiveManager {
   constructor() {
@@ -23,21 +23,21 @@ class ResponsiveManager {
       isDesktop: true,
       hasTouch: false,
       orientation: 'landscape',
-      qualityTier: 'high', // Automatically recalculated on init
+      qualityTier: 'high', 
+      isLowPowerMode: false
     };
 
-    // Hardware profiling via browser APIs (with safe fallbacks)
+    // Hardware profiling via browser APIs
     this.hardware = {
       cores: navigator.hardwareConcurrency || 4,
-      // deviceMemory is Chrome/Edge only. Fallback to 4GB if unknown.
       memory: navigator.deviceMemory || 4, 
-      isAppleMobile: /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      isAppleMobile: /iPhone|iPad|iPod/i.test(navigator.userAgent),
+      saveData: navigator.connection?.saveData || false
     };
 
     this._subscribers = [];
     this._resizeTimeout = null;
 
-    // Cache bound methods
     this._handleResize = this._handleResize.bind(this);
 
     this._init();
@@ -48,22 +48,61 @@ class ResponsiveManager {
     this._calculateViewport();
     this.state.qualityTier = this._calculateOptimalQualityTier();
 
+    // Async Battery Check (Non-blocking)
+    this._checkBatteryStatus();
+
     // Listen for layout shifts
     window.addEventListener('resize', this._handleResize, { passive: true });
-    window.addEventListener('orientationchange', this._handleResize, { passive: true });
+    
+    // Modern Orientation API
+    if (window.screen && window.screen.orientation) {
+      window.screen.orientation.addEventListener('change', this._handleResize, { passive: true });
+    } else {
+      window.addEventListener('orientationchange', this._handleResize, { passive: true });
+    }
 
     console.log(`[Hardware Governor] Profile: ${this.hardware.cores} Cores, ~${this.hardware.memory}GB RAM.`);
     console.log(`[Hardware Governor] WebGL Tier Locked: [${this.state.qualityTier.toUpperCase()}]`);
   }
 
   /**
+   * Safely checks the Battery Status API (Chrome/Edge/Opera only).
+   * If the device is dying, it forces a downgrade to save thermals.
+   */
+  async _checkBatteryStatus() {
+    if ('getBattery' in navigator) {
+      try {
+        const battery = await navigator.getBattery();
+        const evaluateBattery = () => {
+          const isDying = !battery.charging && battery.level <= 0.20;
+          if (isDying && !this.state.isLowPowerMode) {
+            this.state.isLowPowerMode = true;
+            this.state.qualityTier = 'low';
+            console.warn('[Hardware Governor] Critical Battery Detected. Forcing LOW Quality Tier.');
+            this._notifySubscribers({ ...this.state, majorShift: true });
+          }
+        };
+        
+        evaluateBattery();
+        battery.addEventListener('levelchange', evaluateBattery);
+        battery.addEventListener('chargingchange', evaluateBattery);
+      } catch (e) {
+        // Battery API blocked by permissions or unsupported
+      }
+    }
+  }
+
+  /**
    * Evaluates hardware limits and assigns a safe WebGL quality tier.
-   * Prioritizes thermal management and stable 60 FPS over raw resolution.
-   * @returns {string} 'low', 'medium', 'high', or 'ultra'
    */
   _calculateOptimalQualityTier() {
-    const { cores, memory, isAppleMobile } = this.hardware;
+    const { cores, memory, isAppleMobile, saveData } = this.hardware;
     const { isMobile, width } = this.state;
+
+    // Hard throttle for metered connections or battery saver mode
+    if (saveData || this.state.isLowPowerMode) {
+        return 'low';
+    }
 
     // ULTRA: High-end workstations
     if (!isMobile && cores >= 8 && memory >= 8 && width >= 1920) {
@@ -75,7 +114,7 @@ class ResponsiveManager {
       return 'high';
     }
 
-    // MEDIUM: Modern smartphones (Apple A-series chips) and older laptops
+    // MEDIUM: Modern smartphones (Apple A-series chips) and mid-tier laptops
     if (isAppleMobile || (cores >= 4 && memory >= 4)) {
       return 'medium';
     }
@@ -103,19 +142,37 @@ class ResponsiveManager {
     this.state.isMobile = w <= this.breakpoints.mobile;
     this.state.isTablet = w > this.breakpoints.mobile && w <= this.breakpoints.tablet;
     this.state.isDesktop = w > this.breakpoints.tablet;
+
+    // TRUE VIEWPORT INJECTION: Fixes mobile 100vh scrolling bugs
+    // Usage in CSS: `height: calc(var(--vh, 1vh) * 100);`
+    const vh = h * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
   }
 
   _handleResize() {
-    // 150ms debounce prevents executing expensive layout math while the user is actively dragging the window
+    // 150ms debounce prevents DOM thrashing during window drags
     if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
     
     this._resizeTimeout = setTimeout(() => {
+      const prevWidth = this.state.width;
+      const prevHeight = this.state.height;
       const prevMobile = this.state.isMobile;
       const prevOrientation = this.state.orientation;
 
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+
+      // MOBILE URL-BAR DEFENSE: 
+      // If on mobile and ONLY the height changed (by less than 150px), it's just the address bar hiding/showing.
+      // We update the CSS `--vh` variable, but we DO NOT trigger a heavy WebGL/Layout resize.
+      if (this.state.isMobile && prevWidth === newWidth && Math.abs(prevHeight - newHeight) < 150) {
+        this._calculateViewport(); // Updates CSS variable quietly
+        return; // Halt execution. Do not notify subscribers to prevent canvas thrashing.
+      }
+
+      // Execute full recalculation for genuine layout shifts
       this._calculateViewport();
 
-      // Only flag a 'majorShift' if the UI needs to fundamentally restructure
       const majorShift = (prevMobile !== this.state.isMobile) || (prevOrientation !== this.state.orientation);
 
       this._notifySubscribers({
@@ -142,26 +199,20 @@ class ResponsiveManager {
       enableShadows: !isLow,
       
       // CRITICAL: GPU Thermal Management (High-DPI Mobile Defense)
-      // Capping mobile pixel ratios prevents exponential rendering overhead
-      pixelRatioCap: isLow ? 1.0 : (isMedium ? 1.5 : (isUltra ? 2.0 : 1.5)),
+      // Mobile devices often have 3x pixel ratios which melt GPUs. Strictly cap them here.
+      pixelRatioCap: isLow ? 1.0 : (isMedium ? 1.25 : (isUltra ? 2.0 : 1.5)),
 
-      // Synced VFX Limitations (Mapped to FlameParticles v6.0 and LightningParticles v4.0)
-      flameParticleCount: isLow ? 150 : (isMedium ? 250 : (isUltra ? 400 : 350)),
-      maxLightningSegments: isLow ? 500 : (isMedium ? 1000 : 2000),
+      // Synced VFX Limitations (Mapped perfectly to Cataclysm v8.0)
+      flameParticleCount: isLow ? 80 : (isMedium ? 200 : (isUltra ? 400 : 300)),
+      maxLightningSegments: isLow ? 800 : (isMedium ? 2000 : (isUltra ? 5000 : 4000)),
 
       // UI/UX Modifiers
       isTouchDevice: this.state.hasTouch
     };
   }
 
-  /**
-   * Subscribe to debounced resize/layout events
-   * @param {Function} callback 
-   * @returns {Function} Unsubscribe function
-   */
   subscribe(callback) {
     this._subscribers.push(callback);
-    // Immediately fire with current state to hydrate components on mount
     callback(this.state);
     
     return () => {
@@ -177,7 +228,13 @@ class ResponsiveManager {
 
   dispose() {
     window.removeEventListener('resize', this._handleResize);
-    window.removeEventListener('orientationchange', this._handleResize);
+    
+    if (window.screen && window.screen.orientation) {
+        window.screen.orientation.removeEventListener('change', this._handleResize);
+    } else {
+        window.removeEventListener('orientationchange', this._handleResize);
+    }
+
     if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
     this._subscribers = [];
   }

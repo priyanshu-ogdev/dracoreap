@@ -1,22 +1,25 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // 1. Utilities & Managers
-import { dataManager } from './utils/jsonLoader.js';
+import { dataManager } from './utils/jsonLoader.js'; 
 import { responsiveManager } from './utils/responsive.js';
+import { a11yManager } from './utils/accessibility.js';
 import { ScrollSync } from './utils/scrollSync.js';
 
 // 2. WebGL Core Systems
 import { SceneManager } from './core/scene/SceneManager.js';
-import { LightingSetup } from './core/scene/LightingSetup.js';
 import { CameraController } from './core/camera/CameraController.js';
 import { DragonController } from './core/dragon/DragonController.js';
 import { FlameParticles } from './core/particles/FlameParticles.js';
 import { LightningParticles } from './core/particles/LightningParticles.js';
 
-// 3. DOM Section Controllers
-import { IntroSection } from './sections/IntroSection.js';
+// 3. DOM Section Controllers (Updated to src/sections/*)
+import * as IntroSection from './sections/IntroSection.js';
+// import { WorkExperienceSection } from './sections/WorkExperienceSection.js';
+// import { CertificateSection } from './sections/CertificateSection.js';
 import { SkillsSection } from './sections/SkillsSection.js';
 import { ProjectsSection } from './sections/ProjectsSection.js';
 import { AboutSection } from './sections/AboutSection.js';
@@ -25,20 +28,26 @@ import { ContactSection } from './sections/ContactSection.js';
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Obsidian Tempest Application Core v17.0 (THE SOVEREIGN ORCHESTRATOR)
- * Master Orchestrator for Magitech UI and WebGL Engine.
+ * Industry-Grade Application Bootstrapper v12.0 (OBSIDIAN TEMPEST)
+ * * Architectural Upgrades:
+ * - Hard Vertical Floor: Dropped all Y-coordinates significantly (-4.5 to -5.5) to prevent the dragon from clipping the top of the screen.
+ * - Deep Cinematic Zoom: Pushed the Projects section Z-coordinate to -13.0 to frame the entire dragon while it flies.
  */
 class App {
   constructor() {
     this.systems = {};
     this.sections = {};
     this.data = null;
+    this.gltf = null;
     
+    this.loaderOverlay = document.getElementById('global-loader');
+    this.loaderSubtext = this.loaderOverlay?.querySelector('.loader-subtext');
+
+    this.isReducedMotion = a11yManager?.shouldReduceMotion() || false;
     this._renderLoop = this._renderLoop.bind(this);
   }
 
   async boot() {
-    // FORCE RESET: Kill browser scroll memory to prevent GSAP state cascades
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
@@ -47,238 +56,217 @@ class App {
     console.log('⚡ IGNITING OBSIDIAN TEMPEST ARCHITECTURE ⚡');
     
     try {
+      const canvasEl = document.getElementById('webgl-canvas');
+      if (a11yManager && canvasEl) a11yManager.registerWebGLCanvas(canvasEl);
+
       const sysConfig = responsiveManager.getSystemConfig();
+      
+      this._updateLoaderText('Decrypting Profile Data...');
       this.data = await dataManager.load('/data/portfolio_data.json');
       
-      this._injectGlobalFX(); // Inject the CSS for the screen flash
-
-      // 1. Initialize Master Scene (The World)
-      this.systems.sceneManager = new SceneManager('#webgl-canvas', {
-        quality: sysConfig.qualityTier,
-        enablePostProcessing: sysConfig.enablePostProcessing,
-        enableShadows: sysConfig.enableShadows
-      });
-      await this.systems.sceneManager.setup();
-
-      const coreScene = this.systems.sceneManager.scene;
-      const coreCamera = this.systems.sceneManager.camera;
-      this.systems.environment = this.systems.sceneManager.environment;
-
-      // 2. Initialize Lighting
-      this.systems.lighting = new LightingSetup(coreScene, sysConfig);
-      this.systems.lighting.setup();
-
-      // 3. 🐉 Initialize the Dragon (v17.0 Obsidian Apex)
-      this.systems.dragon = new DragonController(coreScene, {
-        modelPath: '/assets/models/dragon.glb',
-        targetSize: 14,
-        basePosition: new THREE.Vector3(0, 0, -2),
-        zoomPosition: new THREE.Vector3(0, 0.5, 4), 
-        enableLightning: true,
-        enableSparks: true,
-        enableFlame: true,
-        enableEnvReflection: true // Crucial for PBR Scales
-      });
-
-      // 4. Initialize External Particle Systems
-      this.systems.flames = new FlameParticles(coreScene, sysConfig);
-      this.systems.lightning = new LightningParticles(coreScene, sysConfig);
-
-      // 5. 🔌 Bind VFX Callbacks (Wiring the Dragon to the World)
-      this.systems.dragon.bindLightningCallback((pos, target, options) => {
-        const intensity = options?.intensity || 1.0;
-        // 2D Sky Lightning
-        if (this.systems.sceneManager.triggerSkyLightning) {
-          this.systems.sceneManager.triggerSkyLightning(pos, 1);
-        }
-        // 3D Volumetric Lightning
-        if (this.systems.lightning && this.systems.lightning.triggerBurst) {
-          this.systems.lightning.triggerBurst(intensity * 6, pos); 
-        }
-      });
-
-      this.systems.dragon.bindFlashCallback((intensity, dur) => {
-        // WebGL HDR ToneMapping Flash
-        if (this.systems.sceneManager.triggerAtmosphericFlash) {
-          this.systems.sceneManager.triggerAtmosphericFlash(intensity * 0.6, dur);
-        }
-        // CSS DOM Screen Flash
-        document.body.classList.add('flash');
-        setTimeout(() => document.body.classList.remove('flash'), dur * 1000);
-      });
-
-      this.systems.dragon.bindExternalFlameCallback((count) => {
-        if (this.systems.flames && this.systems.flames.triggerBurst) {
-          this.systems.flames.triggerBurst(count);
-        }
-      });
-
-      // Await the heavy asset loading
-      await this.systems.dragon.load();
-
-      // 6. Initialize Cinematic Camera
-      this.systems.camera = new CameraController(coreCamera, sysConfig);
-
-      // 7. Master Scroll Conductor
-      this.systems.scrollSync = new ScrollSync({
-        sceneManager: this.systems.sceneManager, 
-        cameraController: this.systems.camera,
-        dragonController: this.systems.dragon,
-        lightingSetup: this.systems.lighting,
-        environmentShader: this.systems.environment,
-        lightningParticles: this.systems.lightning,
-        flameParticles: this.systems.flames
-      });
-
-      // 8. 🗺️ Map Scroll Sections to Dragon Animation Clips
-      this._wireAnimationClipping();
-
-      // 9. Mount DOM Sections
+      await this._loadDragonGeometry();
+      await this._initWebGL(sysConfig);
+      
       this._mountSections();
+      
+      // Unified flight orchestration for all viewport sections
+      this._orchestrateDynamicFlight();
 
-      // 10. Start the Unified Render Loop
+      this.systems.scrollSync = new ScrollSync(this.systems);
+
       requestAnimationFrame(this._renderLoop);
 
-      // 11. Clear UI Blockers & Arm the Scene
       setTimeout(() => {
         this._removeLoader();
-        this.systems.scrollSync.refresh();
-      }, 1000);
+      }, 500);
 
     } catch (error) {
       console.error('❌ CRITICAL SYSTEM FAILURE:', error);
-      const errorMsg = error.stack || error.message;
-      
-      document.body.innerHTML = `
-        <div style="color:#00ffff; padding: 2rem; font-family: monospace; background: #010204; height: 100vh; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 1.5rem; z-index: 99999; position: relative;">
-          <h2 style="color:#ff1133; border-bottom: 1px solid #ff1133; padding-bottom: 0.5rem;">CORE OVERHEAT: SYSTEM BOOT FAILURE</h2>
-          <pre style="white-space: pre-wrap; background: rgba(0,255,255,0.05); padding: 1rem; border-radius: 4px; max-width: 800px; line-height: 1.5;">${errorMsg}</pre>
-          <button onclick="location.reload()" style="background:rgba(0,255,255,0.1); color:#00ffff; border:1px solid #00ffff; padding:10px 20px; cursor:pointer; font-family: monospace; text-transform: uppercase; transition: all 0.3s ease;">Re-Initialize Protocol</button>
-        </div>
-      `;
+      this._showFatalError(error);
     }
   }
 
-  /**
-   * Injects the global CSS required for the Lightning Screen Flash effect
-   */
-  _injectGlobalFX() {
-    if (!document.getElementById('global-vfx')) {
-      const style = document.createElement('style');
-      style.id = 'global-vfx';
-      style.innerHTML = `
-        body.flash { animation: dom-flash 0.15s ease-out; }
-        @keyframes dom-flash {
-          0% { box-shadow: inset 0 0 0 100vmax rgba(255, 255, 255, 0); }
-          50% { box-shadow: inset 0 0 0 100vmax rgba(0, 229, 255, 0.15); }
-          100% { box-shadow: inset 0 0 0 100vmax rgba(255, 255, 255, 0); }
-        }
-      `;
-      document.head.appendChild(style);
-    }
+  async _loadDragonGeometry() {
+    return new Promise((resolve, reject) => {
+      this._updateLoaderText('Summoning Sovereign Geometry... 0%');
+      const loader = new GLTFLoader();
+
+      loader.load(
+        '/assets/models/dragon.glb',
+        (gltf) => {
+          this.gltf = gltf;
+          resolve();
+        },
+        (xhr) => {
+          if (xhr.lengthComputable) {
+            const percentComplete = Math.round((xhr.loaded / xhr.total) * 100);
+            this._updateLoaderText(`Summoning Sovereign Geometry... ${percentComplete}%`);
+          }
+        },
+        (error) => reject(new Error(`Failed to load Dragon.glb: ${error.message}`))
+      );
+    });
   }
 
-  /**
-   * Listens to the ScrollSync system and tells the Dragon to crossfade 
-   * to the correct animation timeline segment based on the active HTML section.
-   */
-  _wireAnimationClipping() {
-    if (!this.systems.scrollSync || !this.systems.dragon) return;
+  async _initWebGL(sysConfig) {
+    this._updateLoaderText('Igniting WebGL Shaders...');
 
-    if (typeof this.systems.scrollSync.on === 'function') {
-      this.systems.scrollSync.on('sectionEnter', ({ sectionId }) => {
-        const validSections = ['intro', 'skills', 'projects', 'about', 'contact'];
-        
-        if (validSections.includes(sectionId)) {
-          // Slow down the animation slightly during the 'about' section for dramatic effect
-          const timeScale = (sectionId === 'about') ? 0.85 : 1.0;
-          
-          this.systems.dragon.setSection(sectionId, { 
-            timeScale: timeScale, 
-            loop: true 
-          });
-        }
-      });
-    }
+    this.systems.sceneManager = new SceneManager('#webgl-canvas', {
+      quality: sysConfig.qualityTier,
+      enablePostProcessing: sysConfig.enablePostProcessing,
+      enableShadows: sysConfig.enableShadows,
+      stormIntensity: 0.7
+    });
+    await this.systems.sceneManager.setup();
+
+    const coreScene = this.systems.sceneManager.scene;
+    const coreCamera = this.systems.sceneManager.camera;
+
+    this.systems.flames = new FlameParticles(coreScene, {
+      maxParticles: sysConfig.flameParticleCount,
+      qualityTier: sysConfig.qualityTier
+    });
+    
+    this.systems.lightning = new LightningParticles(coreScene, {
+      maxSegments: sysConfig.maxLightningSegments,
+      qualityTier: sysConfig.qualityTier
+    });
+
+    this.systems.dragon = new DragonController(coreScene, this.gltf, {
+      flames: this.systems.flames,
+      lightning: this.systems.lightning,
+      enableShadows: sysConfig.enableShadows,
+      qualityTier: sysConfig.qualityTier
+    });
+
+    this.systems.camera = new CameraController(coreCamera, {
+      reducedMotion: this.isReducedMotion
+    });
+
+    this.systems.sceneManager.injectControllers(
+      this.systems.camera, 
+      this.systems.dragon, 
+      this.systems.lightning, 
+      this.systems.flames
+    );
   }
 
   _mountSections() {
-    const appSystems = {
-      dragon: this.systems.dragon,
-      camera: this.systems.camera,
-      lighting: this.systems.lighting,
-      lightning: this.systems.lightning,
-      flames: this.systems.flames,
-      scrollSync: this.systems.scrollSync
+    this._updateLoaderText('Forging DOM Architecture...');
+
+    const domNodes = {
+      intro: document.getElementById('intro'),
+      workExp: document.getElementById('work-experience'),
+      certificates: document.getElementById('certificates'),
+      skills: document.getElementById('skills'),
+      projects: document.getElementById('projects'),
+      about: document.getElementById('about'),
+      contact: document.getElementById('contact')
     };
 
-    // Pass the entire AppSystems object to the DOM sections so they can trigger WebGL events (like the IntroSection unseal)
-    if (document.getElementById('intro')) this.sections.intro = new IntroSection(document.getElementById('intro'), this.data.profile, appSystems);
-    if (document.getElementById('skills')) this.sections.skills = new SkillsSection(document.getElementById('skills'), this.data.skills);
-    if (document.getElementById('projects')) this.sections.projects = new ProjectsSection(document.getElementById('projects'), this.data.projects, appSystems);
-    if (document.getElementById('about')) this.sections.about = new AboutSection(document.getElementById('about'), this.data);
-    if (document.getElementById('contact')) this.sections.contact = new ContactSection(document.getElementById('contact'), this.data, appSystems);
+    // Hydrate controllers (will gracefully skip missing DOM nodes)
+    if (domNodes.intro) this.sections.intro = new IntroSection.IntroSection(domNodes.intro, this.data.profile, this.systems);
+    // if (domNodes.workExp) this.sections.workExp = new WorkExperienceSection(domNodes.workExp, this.data.work_experience);
+    // if (domNodes.certificates) this.sections.certificates = new CertificateSection(domNodes.certificates, this.data.certificates);
+    if (domNodes.skills) this.sections.skills = new SkillsSection(domNodes.skills, this.data.skills);
+    if (domNodes.projects) this.sections.projects = new ProjectsSection(domNodes.projects, this.data.projects, this.systems);
+    if (domNodes.about) this.sections.about = new AboutSection(domNodes.about, this.data, this.systems);
+    if (domNodes.contact) this.sections.contact = new ContactSection(domNodes.contact, this.data, this.systems);
 
     Object.values(this.sections).forEach(section => {
       if (section && typeof section.init === 'function') section.init();
     });
-    
-    setTimeout(() => ScrollTrigger.refresh(), 200);
+  }
+
+  /**
+   * ⚡ DYNAMIC CINEMATIC FLIGHT CHOREOGRAPHER ⚡
+   */
+_orchestrateDynamicFlight() {
+    const dragonGroup = this.systems.dragon?.dragonGroup;
+    const controller = this.systems.dragon;
+    if (!dragonGroup || !controller || this.isReducedMotion) return;
+
+    // REMOVED work-experience and certificates
+    const sectionIds = ['intro', 'skills', 'projects', 'about', 'contact'];
+    const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+    if (sections.length === 0) return;
+
+    const flightPath = gsap.timeline({
+      scrollTrigger: {
+        trigger: document.body,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1.8, 
+      }
+    });
+
+    // 5 WAYPOINTS to match the 5 remaining sections
+    const waypoints = [
+      { pos: { x: 0, y: -5.5, z: -4.0 }, rot: { x: 0, y: 0, z: 0 } },           // Intro
+      { pos: { x: 3.5, y: -5.0, z: -5.0 }, rot: { x: 0.2, y: 0.3, z: 0 } },     // Skills
+      { pos: { x: -4.5, y: -5.5, z: -13.0 }, rot: { x: 0.0, y: -0.8, z: 0.2 } },// Projects 
+      { pos: { x: 2.0, y: -5.0, z: -6.0 }, rot: { x: 0.2, y: 0.2, z: 0 } },     // About
+      { pos: { x: 0, y: -5.5, z: -4.0 }, rot: { x: 0, y: 0, z: 0 } }            // Contact
+    ];
+
+    sections.forEach((section, index) => {
+      const wp = waypoints[index] || waypoints[waypoints.length - 1];
+      
+      if (index > 0) {
+        flightPath.to(dragonGroup.position, { ...wp.pos, ease: "sine.inOut" }, index);
+        flightPath.to(dragonGroup.rotation, { ...wp.rot, ease: "sine.inOut" }, index);
+      }
+
+      let state = 'flying';
+      if (section.id === 'intro') state = 'waking';
+      if (section.id === 'skills') state = 'striking';
+      if (section.id === 'contact') state = 'roaring'; 
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top 60%",
+        end: "bottom 40%",
+        onEnter: () => controller.setState(state),
+        onEnterBack: () => controller.setState(state),
+      });
+    });
+  }
+  
+  _renderLoop(timestamp) {
+    requestAnimationFrame(this._renderLoop);
+    this.systems.sceneManager.render(); 
+  }
+
+  _updateLoaderText(text) {
+    if (this.loaderSubtext) this.loaderSubtext.innerText = text;
   }
 
   _removeLoader() {
-    const loader = document.getElementById('global-loader');
-    if (loader) {
-      gsap.to(loader, {
-        opacity: 0,
-        duration: 1.2,
-        ease: 'power2.inOut',
-        onComplete: () => loader.remove()
-      });
-    }
+    if (!this.loaderOverlay) return;
+    
+    gsap.to(this.loaderOverlay, {
+      opacity: 0,
+      duration: 1.2,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        this.loaderOverlay.remove();
+      }
+    });
   }
 
-  _renderLoop(timestamp) {
-    requestAnimationFrame(this._renderLoop);
-
-    const delta = this.systems.sceneManager.clock.getDelta();
-    const elapsed = this.systems.sceneManager.clock.getElapsedTime();
-
-    // 1. Tick the Dragon
-    if (this.systems.dragon) {
-      this.systems.dragon.update(delta, elapsed, { cameraPosition: this.systems.sceneManager.camera.position });
-      
-      // Feed the dragon's live position to the SceneManager for water reflections
-      const dragonPos = this.systems.dragon.getWorldPosition();
-      if (this.systems.sceneManager.updateDragonTracking) {
-        this.systems.sceneManager.updateDragonTracking(dragonPos);
-      }
-    }
-
-    // 2. Tick the External Systems
-    if (this.systems.camera) {
-      this.systems.camera.update(delta, elapsed);
-    }
-
-    if (this.systems.lighting) {
-      const dragonPos = this.systems.dragon?.model?.position;
-      this.systems.lighting.update(delta, { dragonPosition: dragonPos, time: elapsed });
-    }
-
-    if (this.systems.flames) {
-      this.systems.flames.update(delta, { dragonPosition: this.systems.dragon?.getWorldPosition() });
-    }
-
-    if (this.systems.lightning) {
-      this.systems.lightning.update(delta, { stormIntensity: 0.7 });
-    }
-
-    // 3. Render the Unified Scene
-    this.systems.sceneManager.render();
+  _showFatalError(error) {
+    const errorMsg = error.stack || error.message;
+    document.body.innerHTML = `
+      <div style="color:#00ffff; padding: 2rem; font-family: monospace; background: #010204; height: 100vh; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 1.5rem; z-index: 99999; position: relative;">
+        <h2 style="color:#ff3300; border-bottom: 1px solid #ff3300; padding-bottom: 0.5rem; text-transform: uppercase;">Core Overheat: System Boot Failure</h2>
+        <pre style="white-space: pre-wrap; background: rgba(0,255,255,0.05); padding: 1rem; border-radius: 4px; max-width: 800px; line-height: 1.5;">${errorMsg}</pre>
+        <button onclick="location.reload()" style="background:rgba(0,255,255,0.1); color:#00ffff; border:1px solid #00ffff; padding:10px 20px; cursor:pointer; font-family: monospace; text-transform: uppercase; letter-spacing: 2px;">Re-Initialize Protocol</button>
+      </div>
+    `;
   }
 }
 
-// Ignition
 document.addEventListener('DOMContentLoaded', () => {
   const app = new App();
   app.boot();

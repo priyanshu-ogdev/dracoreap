@@ -2,73 +2,67 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 
 /**
- * Industry-Grade Dynamic Lighting Controller v6.0 (CATACLYSM PROTOCOL)
- * * Architectual Upgrades:
- * - Environment Sync: Lighting perfectly matches the Crimson Rift sky and Navy Abyss ocean.
- * - Dual-Tone Tracing: Dragon is rim-lit by Electric Cyan (storm) and Searing Crimson (sky cracks).
- * - Ocean Reflection Pulses: Ground lights simulate the red sky reflecting off the turbulent water.
- * - Violent Thunder Overrides: Lightning strikes temporarily wash out the red ambient light with blinding cyan.
+ * LightingSetup v8.0 – "Pure Cinematic Directional"
+ * ═══════════════════════════════════════════════════════════════════════
+ * * Architectural Upgrades:
+ * - PointLight Purge: Completely eradicated `SpineGlow` and `OceanGlow` PointLights. These were reflecting off the metallic scales and looking like rogue white particles.
+ * - Strict Directional Lighting: The scene now relies entirely on Hemisphere and Directional lights to guarantee smooth, professional shading with zero hot-spot blowouts.
+ * - Flawless State Transitions: Fixed the scroll-up/scroll-down glitch by ensuring only global environment intensities scale during transitions.
  */
 export class LightingSetup {
   static StatePresets = {
-    // 1. INTRO: Ensures perfect visibility of the dragon against the dark UI
     sleeping: {
-      ambient: 1.0,       
-      key: 1.5,           
-      rim: 2.0,           
-      turbulence: 0.1,    // Calm water reflection
+      ambient: 0.6,       // neutral dark gray
+      key: 1.2,           // warm white
+      rift: 0.1,          // barely visible red fill
+      rim: 0.8,           // subtle cyan rim
       shadowIntensity: 0.4,
-      colorTemp: 6500     
+      colorTemp: 4500,    // warm white
     },
-    // 2. THE DESCENT: Plunging into the cataclysm
     waking: {
-      ambient: 0.5,
+      ambient: 0.4,
       key: 1.0,
-      rim: 2.5,           
-      turbulence: 0.4,
+      rift: 0.15,
+      rim: 1.2,
       shadowIntensity: 0.6,
-      colorTemp: 7500     
+      colorTemp: 5500,
     },
-    // 3. THE RAGING STORM: Dark ocean, heavy red/blue contrast
     flying: {
-      ambient: 0.2,      
-      key: 0.6,           
-      rim: 3.5,           // Strong Cyan rim to protect silhouette against the dark sky
-      turbulence: 0.8,    // Water is choppy, reflecting the red sky heavily
+      ambient: 0.2,
+      key: 0.8,
+      rift: 0.2,
+      rim: 1.8,
       shadowIntensity: 0.8,
-      colorTemp: 10000    
+      colorTemp: 6500,
     },
-    // 4. THE ANTICIPATION: The calm darkness before the strike
     striking: {
-      ambient: 0.05,      // Almost pure darkness
-      key: 0.2,
-      rim: 4.5,           
-      turbulence: 0.4,
+      ambient: 0.1,
+      key: 0.4,
+      rift: 0.25,
+      rim: 2.5,
       shadowIntensity: 1.0,
-      colorTemp: 12000
+      colorTemp: 7500,
     },
-    // 5. THE CLIMAX: Roar and massive water turbulence
     roaring: {
-      ambient: 0.3,
-      key: 1.5,
-      rim: 5.0,
-      turbulence: 2.5,    // Ocean churns violently, massive red reflections
+      ambient: 0.25,
+      key: 1.2,
+      rift: 0.3,
+      rim: 3.0,
       shadowIntensity: 1.0,
-      colorTemp: 8000
+      colorTemp: 6000,
     },
     aggressive: {
-      ambient: 0.3,
-      key: 2.5,
-      rim: 6.0,           
-      turbulence: 1.5,
+      ambient: 0.25,
+      key: 2.0,
+      rift: 0.35,
+      rim: 4.0,
       shadowIntensity: 1.0,
-      colorTemp: 11000
+      colorTemp: 8000,
     }
   };
 
   constructor(scene, options = {}) {
     this.scene = scene;
-    
     this.config = {
       qualityTier: options.qualityTier || 'high',
       enableShadows: options.enableShadows ?? true,
@@ -78,29 +72,21 @@ export class LightingSetup {
     };
 
     this.lights = {
-      ambient: null,
-      key: null,
-      riftFill: null, // New: Crimson light from the sky cracks
-      rim: null,
-      oceanGlow: [],  // Repurposed from lavaGlow
-      dragonGlow: null
+      ambient: null,      // Hemisphere – neutral dark gray base
+      key: null,          // Directional – primary warm white key
+      riftFill: null,     // Directional – extremely subtle atmospheric fill
+      rim: null,          // Directional – cyan edge rim
     };
 
-    // Base targets for GSAP
-    this.baseIntensities = { turbulence: 0 };
-    
-    // PUBLIC EXPORTS FOR SHADER/VFX SYNCING
-    this.globalFlashState = { value: 0.0 }; 
-    this.currentLavaIntensity = 0.0; // Kept named 'Lava' to prevent breaking ScrollSync/Environment wiring
-
+    this.globalFlashState = { value: 0.0 };
     this.currentState = 'sleeping';
     this.lightningActive = false;
-
     this._eventListeners = {};
+
     this.update = this.update.bind(this);
     this.triggerLightningFlash = this.triggerLightningFlash.bind(this);
 
-    console.log('[LightingSetup] Cataclysm Protocol Master Lighting Initialized');
+    console.log('[LightingSetup] v8.0 – Pure Cinematic Directional Armed.');
   }
 
   setup() {
@@ -108,77 +94,53 @@ export class LightingSetup {
     this._createKeyLight();
     this._createRiftFillLight();
     this._createRimLight();
-    this._createOceanGlows();
-    this._createDragonGlow();
     this._applyQualityTier();
-    
-    this.setState('sleeping', { duration: 0 }); 
+    this.setState('waking', { duration: 0 }); // Start awake by default for intro alignment
   }
 
   _createAmbient() {
-    // Top: Crimson Void (0x2a0810) | Bottom: Navy Abyss (0x020a15)
-    // This immediately places the dragon IN the environment
-    this.lights.ambient = new THREE.HemisphereLight(0x2a0810, 0x020a15, 0.8);
-    this.lights.ambient.name = 'CataclysmHemisphere';
+    // Neutral dark gray (top) and near-black (bottom). Zero color tint to let shaders shine.
+    this.lights.ambient = new THREE.HemisphereLight(0x222222, 0x050505, 0.6);
+    this.lights.ambient.name = 'NeutralHemisphere';
     this.scene.add(this.lights.ambient);
   }
 
   _createKeyLight() {
-    this.lights.key = new THREE.DirectionalLight(0x88ccff, 2.0); // Cold storm moonlight
-    this.lights.key.name = 'StormMoonKey';
-    this.lights.key.position.set(-15, 30, 20);
+    // Warm white directional light
+    this.lights.key = new THREE.DirectionalLight(0xfff5e6, 1.2);
+    this.lights.key.name = 'WarmKeyLight';
+    this.lights.key.position.set(-12, 25, 18);
     this.lights.key.castShadow = this.config.enableShadows;
     
     if (this.config.enableShadows) {
       this.lights.key.shadow.mapSize.set(2048, 2048);
       this.lights.key.shadow.camera.near = 0.5;
       this.lights.key.shadow.camera.far = 100;
-      
       const d = 20;
       this.lights.key.shadow.camera.left = -d;
       this.lights.key.shadow.camera.right = d;
       this.lights.key.shadow.camera.top = d;
       this.lights.key.shadow.camera.bottom = -d;
       this.lights.key.shadow.bias = -0.0005;
-      this.lights.key.shadow.normalBias = 0.05; 
+      this.lights.key.shadow.normalBias = 0.05;
     }
     this.scene.add(this.lights.key);
   }
 
   _createRiftFillLight() {
-    // Searing Crimson light hitting the dragon from the top/right to simulate the sky cracks
-    this.lights.riftFill = new THREE.DirectionalLight(0xff1133, 1.0); 
-    this.lights.riftFill.name = 'CrimsonRiftFill';
-    this.lights.riftFill.position.set(15, 20, -10);
+    // Very weak directional fill to give shadows depth
+    this.lights.riftFill = new THREE.DirectionalLight(0x442222, 0.15);
+    this.lights.riftFill.name = 'SubtleRiftFill';
+    this.lights.riftFill.position.set(12, 18, -8);
     this.scene.add(this.lights.riftFill);
   }
 
   _createRimLight() {
-    // Electric Cyan tracing the dragon from behind so it never disappears
-    this.lights.rim = new THREE.DirectionalLight(0x00aaff, 2.0); 
-    this.lights.rim.name = 'ThunderRim';
-    this.lights.rim.position.set(-10, 0, -25);
+    // Sharp edge lighting from behind
+    this.lights.rim = new THREE.DirectionalLight(0x226688, 0.8);
+    this.lights.rim.name = 'SubtleRim';
+    this.lights.rim.position.set(-8, 5, -22);
     this.scene.add(this.lights.rim);
-  }
-
-  _createOceanGlows() {
-    for (let i = 0; i < 3; i++) {
-      // Simulating the red sky reflecting off the dark navy waves below
-      const glow = new THREE.PointLight(0x880011, 0.5, 40, 2.0);
-      glow.name = `OceanReflection_${i}`;
-      glow.position.set((i - 1) * 15, -12, 5);
-      glow.castShadow = false;
-      this.lights.oceanGlow.push(glow);
-      this.scene.add(glow);
-    }
-  }
-
-  _createDragonGlow() {
-    // Spine lighting
-    this.lights.dragonGlow = new THREE.PointLight(0x0088ff, 0.0, 20, 2);
-    this.lights.dragonGlow.name = 'SpineLightningGlow';
-    this.lights.dragonGlow.castShadow = false;
-    this.scene.add(this.lights.dragonGlow);
   }
 
   _applyQualityTier() {
@@ -186,10 +148,8 @@ export class LightingSetup {
     if (tier === 'low') {
       this.config.enableShadows = false;
       if (this.lights.key) this.lights.key.castShadow = false;
-      this.lights.oceanGlow.slice(1).forEach(l => l.visible = false);
     } else if (tier === 'medium') {
       if (this.lights.key) this.lights.key.shadow.mapSize.set(1024, 1024);
-      this.lights.oceanGlow.slice(2).forEach(l => l.visible = false);
     }
   }
 
@@ -204,21 +164,17 @@ export class LightingSetup {
     const ease = options.ease || 'power2.inOut';
 
     gsap.killTweensOf([
-      this.lights.ambient, 
-      this.lights.key, 
-      this.lights.riftFill, 
-      this.lights.rim,
-      this.baseIntensities
+      this.lights.ambient,
+      this.lights.key,
+      this.lights.riftFill,
+      this.lights.rim
     ]);
 
+    // Smoothly interpolate directional intensities based on scroll section
     gsap.to(this.lights.ambient, { intensity: preset.ambient, duration, ease });
     gsap.to(this.lights.key, { intensity: preset.key, duration, ease });
-    
-    // The Crimson Rift dims when the moon gets bright, and intensifies when the storm gets dark
-    gsap.to(this.lights.riftFill, { intensity: Math.max(0.5, preset.shadowIntensity * 1.5), duration, ease });
+    gsap.to(this.lights.riftFill, { intensity: preset.rift, duration, ease });
     gsap.to(this.lights.rim, { intensity: preset.rim, duration, ease });
-    
-    gsap.to(this.baseIntensities, { turbulence: preset.turbulence, duration, ease });
 
     if (this.config.enableColorTempShift) {
       const color = this._tempToRGB(preset.colorTemp);
@@ -231,92 +187,51 @@ export class LightingSetup {
     this._emit('stateChange', { state, prev });
   }
 
+  /**
+   * ⚡ GLOBAL ENVIRONMENTAL STRIKE
+   * Flashes the global directional lights to simulate lightning illuminating the sky.
+   */
   triggerLightningFlash() {
     if (this.lightningActive) return;
     this.lightningActive = true;
 
-    const preset = LightingSetup.StatePresets[this.currentState];
+    const preset = LightingSetup.StatePresets[this.currentState] || LightingSetup.StatePresets.flying;
     const baseKeyInt = preset.key;
-    const peakKeyInt = baseKeyInt + 15.0; // Violent flash
+    const peakKeyInt = baseKeyInt + 12.0; 
 
-    const tl = gsap.timeline({
-      onComplete: () => { this.lightningActive = false; }
-    });
+    const tl = gsap.timeline({ onComplete: () => { this.lightningActive = false; } });
 
-    // 1. The Pre-strikes (Rapid flickering)
+    // Pre-strikes (rapid flicker)
     tl.to(this.lights.key, { intensity: peakKeyInt * 0.4, duration: 0.05, ease: "none" })
       .to(this.lights.key, { intensity: 0, duration: 0.05, ease: "none" })
       .to(this.lights.key, { intensity: peakKeyInt * 0.7, duration: 0.03, ease: "none" })
       .to(this.lights.key, { intensity: 0, duration: 0.05, ease: "none" });
 
-    // 2. The Main Strike (Violent Navy/Cyan Override)
-    // Momentarily override the crimson rift so the lightning feels blindingly bright
-    tl.to(this.lights.riftFill.color, { r: 0.2, g: 0.8, b: 1.0, duration: 0.05 }, "<");
-    tl.to(this.lights.key.color, { r: 0.2, g: 0.8, b: 1.0, duration: 0.05 }, "<");
-    
+    // Main strike flash (global exposure spike)
+    tl.to(this.lights.key.color, { r: 1.0, g: 1.0, b: 1.0, duration: 0.05 }, "<");
     tl.to(this.lights.key, { intensity: peakKeyInt, duration: 0.08, ease: "power4.out" });
-    
-    // SYNC: Push the global proxy to 1.0 for the EnvironmentShader to read
     tl.to(this.globalFlashState, { value: 1.0, duration: 0.08, ease: "power4.out" }, "<");
 
-    tl.to([this.lights.ambient, this.lights.riftFill, this.lights.rim], {
-      intensity: (i, obj) => obj.intensity * 3.5,
-      duration: 0.08,
-      ease: "power2.out",
-    }, "<");
+    tl.to(this.lights.ambient, { intensity: Math.min(preset.ambient + 0.4, 1.2), duration: 0.08, ease: "power2.out" }, "<");
+    tl.to(this.lights.rim, { intensity: preset.rim + 2.0, duration: 0.08, ease: "power2.out" }, "<");
 
-    // 3. The Exponential Decay
+    // Smooth decay back to the section's preset
     tl.to(this.lights.key, { intensity: preset.key, duration: this.config.lightningFlashDuration, ease: "expo.out" });
     
-    // Return to the proper colors
     const baseColor = this._tempToRGB(preset.colorTemp);
     tl.to(this.lights.key.color, { r: baseColor.r, g: baseColor.g, b: baseColor.b, duration: this.config.lightningFlashDuration, ease: "expo.out" }, "<");
-    tl.to(this.lights.riftFill.color, { r: 1.0, g: 0.06, b: 0.2, duration: this.config.lightningFlashDuration, ease: "expo.out" }, "<"); // Return to crimson
-    
     tl.to(this.lights.ambient, { intensity: preset.ambient, duration: this.config.lightningFlashDuration, ease: "expo.out" }, "<");
-    tl.to(this.lights.riftFill, { intensity: Math.max(0.5, preset.shadowIntensity * 1.5), duration: this.config.lightningFlashDuration, ease: "expo.out" }, "<");
     tl.to(this.lights.rim, { intensity: preset.rim, duration: this.config.lightningFlashDuration, ease: "expo.out" }, "<");
-    
-    // SYNC: Fade the shader flash back to 0.0
     tl.to(this.globalFlashState, { value: 0.0, duration: this.config.lightningFlashDuration, ease: "expo.out" }, "<");
-
-    if (this.lights.dragonGlow) {
-      gsap.fromTo(this.lights.dragonGlow, 
-        { intensity: 10.0 }, 
-        { intensity: 0, duration: 0.8, ease: "expo.out" }
-      );
-    }
 
     this._emit('lightningFlash', { timestamp: performance.now() });
   }
 
   update(delta, context = {}) {
-    const time = context.time || performance.now() * 0.001;
-    
-    // Procedural Ocean Shimmering
-    this.lights.oceanGlow.forEach((light, i) => {
-      if (!light.visible) return;
-      const phaseOffset = i * 3.14; 
-      // Faster, choppier wave reflections
-      const waves = Math.sin(time * 2.5 + phaseOffset) * 0.4; 
-      const finalIntensity = Math.max(0, this.baseIntensities.turbulence + waves);
-      
-      light.intensity = finalIntensity;
-      
-      // Store the average for the Environment Shader's uOceanIntensity
-      if (i === 1) this.currentLavaIntensity = finalIntensity;
-    });
-
-    // Dynamic Target Tracking
-    if (context.dragonPosition) {
-      if (this.lights.dragonGlow) {
-        this.lights.dragonGlow.position.lerp(context.dragonPosition, 0.2);
-      }
-      
-      if (this.lights.key.castShadow && this.lights.key.target) {
-        this.lights.key.target.position.lerp(context.dragonPosition, 0.1);
-        this.lights.key.target.updateMatrixWorld();
-      }
+    // Track the Key Light Target to the dragon so shadows remain crisp
+    if (context.dragonPosition && this.lights.key.target) {
+      this.lights.key.target.position.lerp(context.dragonPosition, 0.1);
+      this.lights.key.target.updateMatrixWorld();
     }
   }
 
@@ -329,7 +244,7 @@ export class LightingSetup {
     const t = temp / 100;
     let r, g, b;
     if (t <= 66) {
-      r = 255; 
+      r = 255;
       g = Math.min(255, Math.max(0, 99.4708025861 * Math.log(t) - 161.1195681661));
       b = t <= 19 ? 0 : Math.min(255, Math.max(0, 138.5177312231 * Math.log(t - 10) - 305.0447927307));
     } else {
@@ -356,26 +271,20 @@ export class LightingSetup {
 
   dispose() {
     gsap.killTweensOf([
-      this.lights.ambient, 
-      this.lights.key, 
-      this.lights.riftFill, 
+      this.lights.ambient,
+      this.lights.key,
+      this.lights.riftFill,
       this.lights.rim,
-      this.baseIntensities,
       this.globalFlashState
     ]);
-    if (this.lights.dragonGlow) gsap.killTweensOf(this.lights.dragonGlow);
     if (this.lights.key?.color) gsap.killTweensOf(this.lights.key.color);
-    if (this.lights.riftFill?.color) gsap.killTweensOf(this.lights.riftFill.color);
 
     Object.values(this.lights).forEach(l => {
-      if (Array.isArray(l)) {
-        l.forEach(subLight => this.scene.remove(subLight));
-      } else if (l?.isLight) {
+      if (l?.isLight) {
         this.scene.remove(l);
       }
     });
-    
-    this.lights = { oceanGlow: [] };
+
     this._eventListeners = {};
   }
 }

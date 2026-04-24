@@ -1,183 +1,170 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { DragonController } from '../core/dragon/DragonController.js';
+import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Industry-Grade Scroll Synchronization System v6.1 (FOOLPROOF BINDING)
- * Master Orchestrator for Magitech UI and WebGL Engine.
- * * Architectual Upgrades:
- * - Aggressive System Binding: Checks multiple variable names to guarantee connection with main.js.
- * - The Magic Link: User's scroll progress now directly scrubs the Dragon's animation timeline.
- * - Cinematic Inertia: 1.5s damped scrub keeps the massive 3D model moving smoothly.
+ * Industry-Grade Scroll Orchestrator v10.0 (AUTONOMOUS LOOPS)
+ * Engineered for the Obsidian Tempest UI layer.
+ * * Architectural Upgrades:
+ * - Dynamic Target Hydration: Silently skips missing DOM nodes and auto-rebinds when the engine refreshes.
+ * - Environmental Synergy: The Orchestrator now darkens/brightens the scene lighting based on the dragon's state.
+ * - Cinematic State Fading: Passes autonomous state signals directly to the DragonController.
  */
 export class ScrollSync {
   constructor(appSystems = {}) {
-    // CRITICAL FIX: Aggressively checks all possible names your main.js might have used
     this.systems = {
-      scene: appSystems.scene || appSystems.sceneManager || null, 
-      camera: appSystems.camera || appSystems.cameraController || null,
-      dragon: appSystems.dragon || appSystems.dragonController || null, // <--- THE FIX IS HERE
-      lighting: appSystems.lighting || appSystems.lightingSetup || null,
-      environment: appSystems.environment || appSystems.environmentShader || null,
-      lightning: appSystems.lightning || appSystems.lightningParticles || null,
-      flames: appSystems.flames || appSystems.flameParticles || null
+      camera: appSystems.cameraController || appSystems.camera || null,
+      dragon: appSystems.dragonController || appSystems.dragon || null,
+      environment: appSystems.environmentShader || appSystems.environment || null,
+      lightning: appSystems.lightningParticles || appSystems.lightning || null,
+      flames: appSystems.flames || null
     };
 
-    this.config = {
-      reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-      bootLockout: 1500 
+    this.state = {
+      currentSection: 'waking',
+      isLocked: true
     };
 
-    this.globalProgress = 0;
-    this.isLocked = true;
     this.triggers = [];
-
-    ScrollTrigger.config({ ignoreMobileResize: true });
-
     this._init();
   }
 
   _init() {
-    console.log('[ScrollSync] Cinematic Conductor Initialized. Checking Systems:');
-    console.log(' - Dragon Connected:', !!this.systems.dragon); // This will now log TRUE
-    console.log(' - Scene Connected:', !!this.systems.scene);
-
+    // Wait for the UI layout controllers (IntroSection, etc.) to fully mount the DOM
     setTimeout(() => {
-      this.isLocked = false;
-      console.log('[ScrollSync] Ignition Lock Released. Systems Live.');
-      ScrollTrigger.refresh(); 
-    }, this.config.bootLockout);
-
-    this._setupGlobalScrub();
-    this._setupSectionTriggers();
+      this.state.isLocked = false;
+      this._setupParallaxRail();
+      this._setupAutonomousStates();
+      ScrollTrigger.refresh();
+      console.log('[ScrollSync] Orchestrator Armed & Synchronized.');
+    }, 1500);
   }
 
-  _setupGlobalScrub() {
+  /**
+   * The Camera is the only object directly bound to the scrollbar for physical parallax.
+   */
+  _setupParallaxRail() {
+    if (!this.systems.camera) return;
+
     this.masterTrigger = ScrollTrigger.create({
       trigger: document.body,
       start: "top top",
       end: "bottom bottom",
-      scrub: this.config.reducedMotion ? false : 1.5, 
+      scrub: 1.0, // Smooth interpolation
       onUpdate: (self) => {
-        this.globalProgress = self.progress;
-
-        if (this.systems.camera) {
-          this.systems.camera.setScrollProgress(this.globalProgress);
-        }
-
-        // THE MAGIC LINK
-        if (this.systems.dragon && typeof this.systems.dragon.scrubTimeline === 'function') {
-          this.systems.dragon.scrubTimeline(this.globalProgress);
-        }
+        this.systems.camera.setScrollProgress(self.progress);
       }
     });
   }
 
-  _safeTrigger(selector, options) {
-    const el = document.querySelector(selector);
-    if (!el) {
-      console.warn(`[ScrollSync] Anchor ${selector} not found in DOM.`);
-      return;
+  /**
+   * Maps DOM sections to autonomous 3D loops and lighting states.
+   */
+  _setupAutonomousStates() {
+    // 1. Clear any existing triggers if this is a hot-reload
+    this.triggers.forEach(t => t.kill());
+    this.triggers = [];
+
+    // 2. Define the cinematic sequence
+    const sequence = [
+      { id: 'intro',    state: 'waking',   mood: 'bright' },
+      { id: 'skills',   state: 'striking', mood: 'stormy' },
+      { id: 'projects', state: 'flying',   mood: 'dark' },
+      { id: 'about',    state: 'idle',     mood: 'dim' }, // Changed 'roaring' to idle for about section
+      { id: 'contact',  state: 'idle',     mood: 'abyss' }
+    ];
+
+    sequence.forEach((cfg) => {
+      const el = document.getElementById(cfg.id);
+      
+      // Dynamic Hydration: If a section doesn't exist yet, skip it without throwing errors
+      if (!el) {
+        console.warn(`[ScrollSync] Section #${cfg.id} not found in DOM. Skipping trigger.`);
+        return; 
+      }
+
+      this.triggers.push(ScrollTrigger.create({
+        trigger: el,
+        start: "top 55%", // Trigger slightly before center
+        end: "bottom 45%",
+        onEnter: () => this._requestState(cfg.state, cfg.mood),
+        onEnterBack: () => this._requestState(cfg.state, cfg.mood),
+      }));
+    });
+  }
+
+  /**
+   * Fires a command to all 3D subsystems to transition to the new cinematic state.
+   */
+  _requestState(newState, mood) {
+    if (this.state.isLocked || this.state.currentSection === newState) return;
+    this.state.currentSection = newState;
+
+    console.log(`[ScrollSync] Director Signal: Transition to ${newState.toUpperCase()} (${mood})`);
+
+    // 1. Dragon State Machine
+    if (this.systems.dragon && typeof this.systems.dragon.setState === 'function') {
+      this.systems.dragon.setState(newState);
     }
 
-    const wrappedOptions = { ...options };
+    // 2. Lighting Synergy
+    this._shiftLightingMood(mood);
+
+    // 3. One-Shot VFX Events
+    const dragonPos = this.systems.dragon?.dragonPosition || new THREE.Vector3(0,0,-2);
     
-    ['onEnter', 'onLeave', 'onEnterBack', 'onLeaveBack'].forEach(hook => {
-      if (options[hook]) {
-        wrappedOptions[hook] = (...args) => {
-          if (this.isLocked) return; 
-          options[hook](...args);
-        };
-      }
-    });
-
-    const st = ScrollTrigger.create({
-      trigger: el,
-      ...wrappedOptions
-    });
-
-    this.triggers.push(st);
+    if (newState === 'roaring') {
+      if (this.systems.lightning) this.systems.lightning.triggerBurst(null, 3);
+      if (this.systems.camera) this.systems.camera.triggerShake(2.0, 1.0);
+    } else if (newState === 'striking') {
+      if (this.systems.lightning) this.systems.lightning.triggerBurst(dragonPos, 1);
+    }
   }
 
-  _setupSectionTriggers() {
-    // 1. INTRO -> SKILLS 
-    this._safeTrigger('#skills', {
-      start: 'top 60%',
-      onEnter: () => {
-        this.systems.dragon?.setState(DragonController.State.STRIKING);
-        this.systems.lighting?.setState('striking', { duration: 1.5 });
-      },
-      onLeaveBack: () => {
-        this.systems.dragon?.setState(DragonController.State.FLYING);
-        this.systems.lighting?.setState('flying', { duration: 1.5 });
-      }
-    });
+  /**
+   * Smoothly interpolates the scene lighting based on the current section.
+   */
+  _shiftLightingMood(mood) {
+    if (!this.systems.environment) return;
 
-    // 2. SKILLS -> PROJECTS 
-    this._safeTrigger('#projects', {
-      start: 'top 55%',
-      onEnter: () => {
-        this.systems.dragon?.setState(DragonController.State.AGGRESSIVE);
-        this.systems.lighting?.setState('aggressive', { duration: 1.5 });
-        this.systems.lightning?.triggerBurst();
-      },
-      onLeaveBack: () => {
-        this.systems.dragon?.setState(DragonController.State.STRIKING);
-        this.systems.lighting?.setState('striking', { duration: 1.5 });
-      }
-    });
+    const env = this.systems.environment;
+    const tl = gsap.timeline();
 
-    // 3. PROJECTS -> ABOUT (THE CLIMAX)
-    this._safeTrigger('#about', {
-      start: 'top 50%', 
-      onEnter: () => {
-        this.systems.dragon?.setState(DragonController.State.ROARING);
-        this.systems.lighting?.setState('roaring', { duration: 0.5 });
-        
-        if (!this.config.reducedMotion) {
-          this.systems.camera?.triggerShake(1.6, 1.2);
-        }
-        
-        if (this.systems.scene && typeof this.systems.scene.triggerAtmosphericFlash === 'function') {
-          this.systems.scene.triggerAtmosphericFlash(4.0, 1.5);
-        } else {
-          this.systems.lighting?.triggerLightningFlash?.(); 
-        }
-        
-        // Target VFX at Dragon
-        const dragonPos = this.systems.dragon?.model?.position;
-        this.systems.lightning?.triggerBurst(dragonPos);
-        this.systems.flames?.triggerBurst(180); 
-      },
-      onLeaveBack: () => {
-        this.systems.dragon?.setState(DragonController.State.AGGRESSIVE);
-        this.systems.lighting?.setState('aggressive', { duration: 1.5 });
-      }
-    });
-
-    // 4. ABOUT -> CONTACT 
-    this._safeTrigger('#contact', {
-      start: 'top 65%',
-      onEnter: () => {
-        this.systems.dragon?.setState(DragonController.State.SLEEPING);
-        this.systems.lighting?.setState('sleeping', { duration: 2.5 });
-      },
-      onLeaveBack: () => {
-        this.systems.dragon?.setState(DragonController.State.ROARING);
-        this.systems.lighting?.setState('roaring', { duration: 1.2 });
-      }
-    });
+    // These values target properties that should exist on your EnvironmentShader/Controller
+    switch(mood) {
+      case 'bright':
+        tl.to(env, { ambientIntensity: 0.8, fogDensity: 0.02, duration: 1.5 });
+        break;
+      case 'stormy':
+        tl.to(env, { ambientIntensity: 0.3, fogDensity: 0.05, duration: 1.0 });
+        break;
+      case 'dark':
+        tl.to(env, { ambientIntensity: 0.1, fogDensity: 0.06, duration: 2.0 });
+        break;
+      case 'dim':
+        tl.to(env, { ambientIntensity: 0.4, fogDensity: 0.04, duration: 1.5 });
+        break;
+      case 'abyss':
+        tl.to(env, { ambientIntensity: 0.05, fogDensity: 0.08, duration: 2.5 });
+        break;
+    }
   }
 
-  refresh() {
-    ScrollTrigger.refresh();
+  /**
+   * Call this if the DOM heavily changes (e.g., expanding an accordion).
+   */
+  refresh() { 
+    ScrollTrigger.refresh(); 
+    this._setupAutonomousStates(); // Rebinds to any newly injected DOM nodes
   }
 
   dispose() {
-    this.masterTrigger?.kill();
+    console.log('[ScrollSync] Shutting down Orchestrator...');
+    if (this.masterTrigger) this.masterTrigger.kill();
     this.triggers.forEach(t => t.kill());
     this.triggers = [];
+    gsap.killTweensOf(this.systems.environment);
   }
 }
