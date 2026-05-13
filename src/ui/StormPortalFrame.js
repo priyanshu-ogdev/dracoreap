@@ -162,7 +162,7 @@ export class StormPortalFrame {
 
   _buildDOM() {
     const { project } = this.config;
-    const previewUrl = project.preview_url || project.site_url;
+    const previewUrl = project.preview_url;
     
     if (!previewUrl) {
       this._renderFallback();
@@ -187,7 +187,7 @@ export class StormPortalFrame {
         </svg>
         <div class="storm-action-core">
           <button class="storm-btn">[ SHATTER VEIL ]</button>
-          <a href="${project.site_url}" target="_blank" rel="noopener noreferrer" class="storm-link">Traverse ↗</a>
+          <a href="${project.preview_url}" target="_blank" rel="noopener noreferrer" class="storm-link">Traverse ↗</a>
         </div>
       </div>
     `;
@@ -294,7 +294,7 @@ export class StormPortalFrame {
       <div style="position: relative; width: 100%; height: 100%; border-radius: 8px; overflow: hidden; filter: grayscale(1);">
         <img src="${thumb}" alt="${project.title} Preview" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
         <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,7,10,0.6);">
-          <a href="${project.site_url}" target="_blank" rel="noopener noreferrer" class="storm-btn" style="text-decoration: none;">
+          <a href="${project.preview_url}" target="_blank" rel="noopener noreferrer" class="storm-btn" style="text-decoration: none;">
             [ TRAVERSE ↗ ]
           </a>
         </div>
