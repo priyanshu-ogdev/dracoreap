@@ -20,7 +20,7 @@
     "location": "Kolkata, India",
     "availability": "Open to Machine Learning & Systems Design Roles",
     "socials": {
-      "github": "https://github.com/SuPReme-0",
+      "github": "https://github.com/priyanshu-ogdev",
       "linkedin": "https://linkedin.com/in/priyanshu-roy-25b91a31a/",
       "instagram": "https://instagram.com/thekronotic"
     }
@@ -186,8 +186,8 @@
       "status": "active",
       "role": "Sole Architect & Developer",
       "timeline": { "start": "2026-01", "end": "Present", "current": true },
-      "repo_url": "https://github.com/SuPReme-0/GoPrivate",
-      "preview_url": "https://supreme-0.github.io/GoPrivate/",
+      "repo_url": "https://github.com/priyanshu-ogdev/GoPrivate",
+      "preview_url": "https://priyanshu-ogdev.github.io/GoPrivate/",
       "thumbnail_url": "/assets/projects/goprivate.webp",
       "description": "An open-source, entirely on-device machine learning firewall for Android, built under the Project Trinity initiative. Architected exclusively by myself to perform real-time network traffic interception and threat scoring. This zero-cloud system bridges a C++ system-level JNI with heavily optimized local sequence models to detect anomalous network patterns and C2 communications without exposing any user data.",
       "detailed_architecture": {
@@ -222,7 +222,7 @@
       "status": "research",
       "role": "Lead AI Researcher",
       "timeline": { "start": "2026-03", "end": "Present", "current": true },
-      "repo_url": "https://github.com/SuPReme-0/avaaniai",
+      "repo_url": "https://github.com/priyanshu-ogdev/AvaniAI",
       "preview_url": "https://avaaniai-orpin.vercel.app/",
       "thumbnail_url": "/assets/projects/avani-ai.webp",
       "description": "An advanced natural language perception engine for human-AI interaction. Built upon the custom V21.0-Lite architecture, it utilizes a highly optimized single-model, two-pass pipeline designed specifically to bypass the limitations of hardware-constrained edge deployments. It extracts deep semantic intent and conversational nuance without relying on multi-model distributed cloud clusters.",
@@ -258,7 +258,7 @@
       "status": "completed",
       "role": "Full-Stack Developer & API Architect",
       "timeline": { "start": "2026-02", "end": "2026-03", "current": false },
-      "repo_url": "https://github.com/SuPReme-0/Edubridge",
+      "repo_url": "https://github.com/priyanshu-ogdev/Edubridge",
       "preview_url": "https://edubridge-eight.vercel.app/",
       "thumbnail_url": "/assets/projects/edubridge.webp",
       "description": "A comprehensive platform engineered for automated educational content generation and intelligent classroom API management. Leveraged rigid API endpoints, offline-first architectural patterns, and NLP-assisted curriculum generation to serve dynamic, highly scalable educational infrastructure.",
@@ -294,7 +294,7 @@
       "status": "completed",
       "role": "Lead Architect & AI Systems Engineer",
       "timeline": { "start": "2026-04", "end": "2026-05", "current": false },
-      "repo_url": "https://github.com/SuPReme-0/CivicLink",
+      "repo_url": "https://github.com/priyanshu-ogdev/CivicLink",
       "preview_url": "https://civic-link-eta.vercel.app/",
       "thumbnail_url": "/assets/projects/civiclink.webp",
       "description": "An autonomous, multi-agent AI pipeline engineered to process, verify, and resolve citizen grievances at scale. Built with a stateful LangGraph architecture, it features Vision-Language Model (VLM) forensics, 70B LLM-powered geolocation, automated OSINT scraping for official contacts, and legally robust draft generation.",
