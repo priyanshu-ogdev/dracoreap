@@ -28,6 +28,10 @@ dist/
 build/
 out/
 
+# Resume artifacts
+public/res/build_resume.ps1
+public/res/resume.tex
+
 # Vite specific
 .vite/
 
