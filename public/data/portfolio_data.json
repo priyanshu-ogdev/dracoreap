@@ -335,6 +335,98 @@
         "multi_provider_uptime": "100% inference availability via autonomous Groq-to-Gemini failover"
       },
       "layout": "right"
+    },
+    {
+      "id": "ssense-dpdp-slm-orchestrator",
+      "title": "SSENSE: DPDP Alignment Pipeline & SLM",
+      "status": "active",
+      "role": "Lead ML Engineer & AI Systems Architect",
+      "timeline": {
+        "start": "2026-06",
+        "end": "Present",
+        "current": true
+      },
+      "repo_url": "https://github.com/priyanshu-ogdev/ssense-dpdp-slm",
+      "preview_url": "",
+      "thumbnail_url": "/assets/projects/ssense-dpdp.webp",
+      "description": "An end-to-end machine learning pipeline dedicated to auditing Indian Digital Personal Data Protection (DPDP) Act compliance. This initiative consists of two major components: an adversarial synthetic data generator (GAN Forge) and an Unsloth-optimized SLM finetuning loop. Built with a strict focus on functional, production-ready software over simple prototypes, the project also features a custom VS Code extension that connects local development environments to cloud-based GPU runtimes for highly efficient, serverless machine learning training.",
+      "detailed_architecture": {
+        "core_components": [
+          "Adversarial GAN Forge — Vectorized synthetic data generation utilizing Qwen2-72B-Instruct-FP8 via vLLM. Engineered a stratified allocation matrix to prevent class imbalance across 8,000 synthetic corporate privacy policies while employing anti-mode-collapse temperature annealing.",
+          "Semantic Auditor & Validator — A robust validation layer utilizing difflib.SequenceMatcher for O(n) fuzzy logic. It enforces strict semantic primary/secondary keyword mapping and catches foreign law hallucinations (e.g., GDPR, CCPA).",
+          "Unsloth SLM Finetuning (SFT & DPO) — Trained a highly aligned Qwen3.5-9B model utilizing Unsloth's custom Triton kernels and TRL 0.17.0. Employed Identity Preference Optimization (IPO) with a beta of 0.5 to enforce strict legal reasoning boundaries, bypassing standard FlashAttention for memory-efficient SDPA fallback.",
+          "Serverless Wrapper (VS Code Extension) — Developed a custom VS Code extension operating as a 'Serverless Wrapper'. This extension seamlessly bridges local IDEs with remote GPU environments, automatically handling environment synchronization and effectively eliminating local hardware bottlenecks during iterative model training."
+        ],
+        "optimization_highlights": [
+          "Expanded maximum sequence length to 24,576 tokens while entirely avoiding OOM panics on a 128GB Grace Blackwell UMA by halving micro-batch sizes and strictly disabling TRL sequence packing to prevent causal mask cross-contamination.",
+          "Implemented automated VRAM Airlocks via Bash scripting to execute a Ray distributed daemon teardown and /dev/shm purge, safely extracting 75GB FP8 model weights from Nvidia driver contexts between the inference and training stages.",
+          "Optimized the data pipeline context window by dynamically caching injected law text, achieving a 30% pipeline speedup per generated policy."
+        ],
+        "security_measures": [
+          "Sealed the training loops against backpropagation JSON corruption by enforcing token left-truncation, preserving the assistant's output during max-token limits.",
+          "Architected an automated False-Negative dropping mechanism inside the Reflexion loop to strictly prevent data-poisoning the DPO dataset with failed adversarial variations."
+        ]
+      },
+      "tech_stack": [
+        "Unsloth",
+        "TRL 0.17.0",
+        "vLLM",
+        "PyTorch",
+        "Qwen 72B & 9B",
+        "VS Code API",
+        "TypeScript",
+        "Bash Scripting"
+      ],
+      "metrics": {
+        "dataset_scale": "8,000 highly contextual synthetic policy pairs",
+        "context_window": "24,576 tokens for uninterrupted deep legal reasoning",
+        "training_efficiency": "Sub-10 hour end-to-end SFT and DPO alignment",
+        "hardware_utilization": "96GB peak VRAM optimized for Grace Blackwell UMA architectures"
+      },
+      "layout": "right"
+    },
+    {
+      "id": "revexbot-ase-moe",
+      "title": "RevExBot: Deep RL Architecture",
+      "status": "active",
+      "role": "Chief RL Engineer & Systems Architect",
+      "timeline": { "start": "2026-06", "end": "Present", "current": true },
+      "repo_url": "https://github.com/priyanshu-ogdev/RevExBot",
+      "preview_url": "",
+      "thumbnail_url": "/assets/projects/revexbot.webp",
+      "description": "An industry-grade, physically simulated reinforcement learning framework engineered in NVIDIA Isaac Lab. Designed to train continuous control policies for humanoid robotics, this project develops and contrasts two state-of-the-art paradigms: Adversarial Skill Embeddings (ASE) and Mixture of Experts (MoE). It bridges raw video ingestion, mathematical kinematic retargeting, and highly optimized PPO/GAIL training loops on constrained consumer workstation hardware.",
+      "detailed_architecture": {
+        "core_components": [
+          "ASE Pipeline (Adversarial Skill Embeddings) — A generalized monolithic policy utilizing a continuous latent space and an AMP-scaled GAN Discriminator. Enables fluid interpolation between disparate skills (e.g., blending combat and locomotion) with minimal VRAM overhead.",
+          "MoE Pipeline (Mixture of Experts) — An isolated-specialist architecture that trains discrete neural networks for specific domains (locomotion, combat, dance), orchestrated by a high-frequency Gating Network for specialized task execution.",
+          "Universal Motion Forge — A custom C++/Python data ingestion pipeline utilizing CPU-throttled Farneback optical flow and MediaPipe. Applies strict analytical Inverse Kinematics (IK) with stable arctan2 extremity math to generate mathematically flawless URDF trajectories from raw YouTube MP4s.",
+          "Universal Motion Model (UMM) — A Split-Head Actor-Critic policy featuring a strictly Causal CNN history encoder for temporal momentum, safeguarding against future-leakage while protecting delicate manipulator (hand) gradients from massive torso torques."
+        ],
+        "optimization_highlights": [
+          "Implemented PyTorch Automatic Mixed Precision (AMP) with custom GradScalers directly inside the PPO loop, enabling full Phase 2 GAN training (4,096 parallel environments) on a single RTX 6000 Ada.",
+          "Engineered an O(1) step-time Motion Library Manager with zero VRAM fragmentation, safely handling CPU-to-GPU tensor transfers across thousands of frames.",
+          "Replaced standard AdamW with SGD + Nesterov Momentum in the adversarial loops to prioritize landscape generalization over rapid convergence, preventing the policy from overfitting to noisy discriminator spikes."
+        ],
+        "mathematical_rigor": [
+          "Designed a surgical 'Teleportation Mask' in the Generalized Advantage Estimation (GAE) logic, explicitly hiding environment resets from the Discriminator to maintain strict Lipschitz continuity.",
+          "Constructed a deterministic Ground-Truth Visualizer with time-dilation correction and Isaac Lab ActionManager parity, proving analytical IK bounds before expending 48-hour GPU cycles."
+        ]
+      },
+      "tech_stack": [
+        "PyTorch (PPO/GAIL/AMP)",
+        "NVIDIA Isaac Lab",
+        "Omniverse PhysX",
+        "OpenCV",
+        "FFmpeg",
+        "SciPy"
+      ],
+      "metrics": {
+        "environment_scale": "8,192 parallel physical environments (Phase 1 Loco) at 50Hz",
+        "retargeting_accuracy": "100% anatomically mapped without URDF joint-limit violations",
+        "training_stability": "Zero NaN gradient collapses via careful atanh clamping and Orthogonal Initialization",
+        "hardware_utilization": "Full pipeline optimized for native Windows RTX workstation execution"
+      },
+      "layout": "left"
     }
   ],
   "about": {
