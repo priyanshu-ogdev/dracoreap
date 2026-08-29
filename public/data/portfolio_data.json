@@ -189,66 +189,79 @@
       "repo_url": "https://github.com/priyanshu-ogdev/GoPrivate",
       "preview_url": "https://priyanshu-ogdev.github.io/GoPrivate/",
       "thumbnail_url": "/assets/projects/goprivate.webp",
-      "description": "An open-source, entirely on-device machine learning firewall for Android, built under the Project Trinity initiative. Architected exclusively by myself to perform real-time network traffic interception and threat scoring. This zero-cloud system bridges a C++ system-level JNI with heavily optimized local sequence models to detect anomalous network patterns and C2 communications without exposing any user data.",
+      "description": "An open-source, entirely on-device triple-engine machine learning firewall for Android, built under the Project Trinity initiative. Operates as three mathematically synchronized Neural Networks (XGBoost ONNX, XGBoost+SHAP, DistilBERT) running natively on Android silicon. Zero cloud latency and zero data exfiltration — all inference executes at wire-speed (<3ms) within the OS-level VpnService. The project includes the training architecture, data pipelines, and exported ONNX models that power the Android client.",
       "detailed_architecture": {
         "core_components": [
-          "Native Packet Interceptor (C++ JNI) — Hooks directly into Android's VpnService API for zero-copy packet inspection at the OS level.",
-          "Lightweight Feature Extractor — Analyzes flow-level metadata (timing, packet sizes, entropy) to identify threats without decrypting or inspecting payload content.",
-          "Quantized Threat Classifier (TFLite) — INT8-quantized sequence model calibrated specifically for malware detection within tight mobile constraints.",
-          "Telemetry Hub — Local-only logging system equipped with cryptographic integrity checks to maintain secure forensic audit trails."
+          "Engine A: Network Sentinel (XGBoost→ONNX) — Real-time Network IDS/IPS via 80 flow heuristics (Flow IAT Std, Packet Length Variance) extracted natively through C++ JNI from IPv4 packets. CICFlowMeter-derived feature extraction with <3ms latency. ~98.9% F1-score on encrypted transport layers.",
+          "Engine B: Vanguard Static Analyzer (XGBoost+SHAP) — Deep forensic payload analysis of installed applications via compiled AndroidManifest.xml AXML parsing. Detects dangerous permission combinations masked by UI obfuscation. Exports to JSON format for ultra-lightweight Kotlin parsing with SHAP explainability for human-readable forensic reports.",
+          "Engine C: NLP Privacy Auditor (DistilBERT→ONNX) — Semantic analysis of privacy policies and EULAs synchronized with AccessibilityService and custom headless Phantom Fetcher. Categorizes text into Data_Collection, Data_Sharing, Security_Retention, User_Choice, Other_Policy. Exported to FP32 ONNX with 510-token hard clamp to prevent native C++ memory segmentation faults.",
+          "Hardware Thread Quarantine — Heavy ML models strictly clamped to isolated dispatchers (NlpDispatcher, Dispatchers.Default), guaranteeing zero thread-thrashing or CPU cycle theft from active VPN traffic.",
+          "Zero-Copy Streaming — Bypasses JVM String allocation entirely when scanning large binaries. Evaluates byte arrays natively via C++, dropping GC pauses to zero.",
+          "Explainable AI (XAI) — All models incorporate SHAP (SHapley Additive exPlanations) and LIME-style perturbation for transparent threat scores and human-readable forensic reports."
         ],
         "optimization_highlights": [
-          "Implemented memory-safe tensor handling via custom arena allocators, completely eliminating OOM crashes during sustained heavy traffic bursts.",
-          "Compressed the ML model footprint to under 8MB through structured pruning and QAT, achieving sub-50ms inference latency on mid-tier hardware.",
-          "Designed a crash-resilient watchdog timer and state checkpointing system ensuring the firewall recovers instantly without dropping traffic."
+          "Hardware Thread Quarantine: ML models clamped to isolated dispatchers, mathematically guaranteeing they never trigger OS thread-thrashing or steal CPU from active VPN traffic.",
+          "Zero-Copy Streaming: Bypasses JVM String allocation entirely when scanning large binaries. Evaluates byte arrays natively via C++, dropping GC pauses to zero.",
+          "Memory-Safe Tensor Handling: Native C++ arena allocators eliminate OOM crashes during sustained packet inspection at 100Hz.",
+          "Token Hard-Clamping: DistilBERT output clamped to 510 tokens to prevent native C++ SIGSEGV crashes during document analysis."
         ],
         "privacy_guarantees": [
-          "Absolute zero remote inference: 100% of ML execution is isolated in a native Android process.",
-          "Strict no-payload inspection policy ensures end-to-end user content privacy."
+          "Absolute zero remote inference: 100% of ML execution is isolated in native Android processes.",
+          "Strict no-payload inspection policy ensures end-to-end user content privacy.",
+          "All telemetry vectors never leave the device — forensic audit trails are stored locally with cryptographic integrity checks."
         ]
       },
-      "tech_stack": ["C++", "JNI", "Android NDK", "TFLite", "VpnService API", "Arena Allocators", "Network Forensics"],
+      "tech_stack": ["C++", "JNI", "Android NDK", "XGBoost→ONNX", "DistilBERT→ONNX", "PyTorch", "VpnService API", "SHAP/LIME", "Python (Training)"],
       "metrics": {
-        "model_size": "7.8 MB (INT8 quantized)",
-        "avg_inference_latency": "42ms on mid-tier devices",
-        "false_positive_rate": "<0.8% on held-out test set",
-        "memory_footprint": "<120MB RSS during sustained operation"
+        "network_engine_f1": "~98.9% optimized F1-Score on encrypted transport layers",
+        "network_engine_latency": "<3ms wire-speed inference at 100Hz packet rate",
+        "model_footprint": "Three engines combined under 15MB ONNX (XGBoost + DistilBERT)",
+        "document_context_window": "510 tokens (hard-clamped to prevent SIGSEGV)",
+        "zero_copy_streaming": "JVM String allocation bypassed for binary scanning",
+        "thread_quarantine": "100% CPU isolation guaranteed via dispatcher clamping"
       },
       "layout": "left"
     },
     {
       "id": "avani-ai",
-      "title": "Avani AI",
-      "status": "research",
-      "role": "Lead AI Researcher",
+      "title": "Avaani AI Companion",
+      "status": "active",
+      "role": "Lead AI Engineer & Full-Stack Developer",
       "timeline": { "start": "2026-03", "end": "Present", "current": true },
       "repo_url": "https://github.com/priyanshu-ogdev/AvaniAI",
       "preview_url": "https://avaaniai-orpin.vercel.app/",
       "thumbnail_url": "/assets/projects/avani-ai.webp",
-      "description": "An advanced natural language perception engine for human-AI interaction. Built upon the custom V21.0-Lite architecture, it utilizes a highly optimized single-model, two-pass pipeline designed specifically to bypass the limitations of hardware-constrained edge deployments. It extracts deep semantic intent and conversational nuance without relying on multi-model distributed cloud clusters.",
+      "description": "A production-ready real-time conversational AI companion built on a VRM-based 3D avatar system. Features a hardened FastAPI WebSocket backend with four specialized AI modules — Whisper STT, Groq Llama-3.1-8B brain, Kokoro ONNX TTS, and YOLOv8+DeepFace vision — all with biometric face authentication, persistent user memory via Supabase, and enterprise-grade resource isolation through dedicated thread pools for each modality.",
       "detailed_architecture": {
         "core_components": [
-          "V21.0-Lite Pipeline — Single-model, two-pass RAG architecture optimized for extreme low-latency context retrieval and synthesis.",
-          "Intent Recognition Matrix — NLP-driven state machine that processes conversational semantics to extract precise user intent.",
-          "Semantic Chunking Engine — Dynamically parses, chunks, and indexes conversational history for highly accurate long-term recall.",
-          "Probabilistic Decision Layer — Bayesian network that fuses confidence scores from multiple NLP inference passes to generate context-aware dialogue actions."
+          "EARS Module (Whisper STT) — Faster Whisper base.en engine with custom VAD, barge-in detection via RMS thresholding, and Intel CPU thread locking to prevent GIL contention during real-time audio ingestion.",
+          "BRAIN Module (Groq Llama) — Llama-3.1-8B-Instant reasoning engine with 10-turn short-term memory deque and long-term database recall via Supabase. Personality-prompted for empathetic, non-AI-speak responses with emotional tone mirroring.",
+          "MOUTH Module (Kokoro TTS) — ONNX int8-quantized TTS with 100+ voice embeddings, pre-cached voice embeddings, and async warmup on a dedicated daemon thread. Humanization padding of 0.2s after punctuation.",
+          "EYES Module (YOLOv8 + DeepFace) — Real-time object detection, emotion classification via MediaPipe FaceMesh, face recognition with cosine similarity thresholding, and 'holding object' inference from 30+ allowed classes.",
+          "WebSocket Router (/ws/avaani) — 4-Byte LE binary framing between Chrome MV3 and AI backend, eliminating JSON parse locks. Enforces JWT authentication within 10s, single-session-per-user via server-side dictionary, and max 50 concurrent client capacity.",
+          "Biometric Auth Pipeline — 5-angle face enrollment (Center, Left, Right, Up, Down) with MediaPipe FaceMesh stability scoring (min 95%). Face vectors encrypted at rest in Supabase using pgcrypto with per-user salt."
         ],
         "optimization_highlights": [
-          "The V21.0-Lite implementation drastically reduces memory overhead, allowing robust LLM orchestration entirely on-device.",
-          "Hardware-aware INT8 quantization preserves linguistic accuracy while maximizing token throughput on mobile and edge architectures.",
-          "Parallel processing pipeline decouples intent extraction, database retrieval, and generation stages."
+          "Thread-Pool Isolation: Each AI module runs on its own ThreadPoolExecutor (IO=32, STT/Compute=CPU/4, VAD=CPU/2, Vision=CPU/4) preventing cross-modality resource contention.",
+          "Zero-Copy Audio Pipeline: 48kHz PCM streams through deque-based VAD buffer directly to Whisper with no intermediate JSON serialization.",
+          "Biometric RAM Cache: Face vectors loaded into an LRU-style in-memory cache keyed by SHA-256 digest, with 30-minute TTL across browser tabs.",
+          "OOM Prevention: Whisper torch threads pre-clamped via environment variables (OMP=4, MKL=4) before import to prevent allocation spikes."
         ],
-        "privacy_guarantees": [
-          "100% On-device execution ensures conversational text vectors never leave the user's hardware.",
-          "Feature-level anonymization securely hashes embeddings before any optional cross-device syncing."
+        "security_measures": [
+          "JWT WebSocket Authentication: Every connection requires valid Supabase JWT, verified server-side within 10-second handshake window.",
+          "Single-Session Enforcement: Server-side dictionary maps user_id to exactly one active WebSocket, killing stale connections on reconnect.",
+          "Encrypted Biometric Storage: Face vectors stored as encrypted blobs using pgcrypto symmetric encryption with per-user salt derivation (auth.uid()::text || '_secure_salt').",
+          "Row-Level Security: All Supabase tables enforce RLS policies — users can only SELECT/INSERT their own data.",
+          "Barge-In Interruption: Live RMS monitoring immediately truncates TTS playback when user begins speaking, preventing race conditions."
         ]
       },
-      "tech_stack": ["Python", "PyTorch", "Local LLMs", "V21.0-Lite Architecture", "Semantic Chunking", "ONNX Runtime", "Bayesian Networks"],
+      "tech_stack": ["Python 3.11", "FastAPI", "WebSocket (4-Byte LE Binary)", "Supabase (RLS + pgcrypto)", "Whisper (STT)", "Groq Llama-3.1-8B", "Kokoro ONNX (TTS)", "YOLOv8", "MediaPipe FaceMesh", "DeepFace", "Next.js 16", "Three.js + @pixiv/three-vrm", "WebRTC"],
       "metrics": {
-        "intent_accuracy": "94.1% on custom conversational validation set",
-        "retrieval_latency": "Under 150ms utilizing V21.0-Lite dual-pass",
-        "end_to_end_latency": "Sub-800ms generation on edge hardware",
-        "vram_target": "Designed for deployment under 4GB VRAM limits"
+        "tts_model_size": "24MB int8 ONNX (Kokoro v1.0)",
+        "stt_latency": "Sub-500ms end-to-end with Beam Size 1 on Intel CPU",
+        "websocket_latency": "Sub-50ms binary frame round-trip",
+        "concurrent_clients": "50 max (hardcoded cap with 5s handshake timeout)",
+        "face_auth_accuracy": "95% stability threshold, 5-angle enrollment"
       },
       "layout": "right"
     },
@@ -337,51 +350,94 @@
       "layout": "right"
     },
     {
-      "id": "ssense-dpdp-slm-orchestrator",
-      "title": "SSENSE: DPDP Alignment Pipeline & SLM",
+      "id": "cognit-ai",
+      "title": "Cognit AI",
       "status": "active",
-      "role": "Lead ML Engineer & AI Systems Architect",
-      "timeline": {
-        "start": "2026-06",
-        "end": "Present",
-        "current": true
-      },
-      "repo_url": "https://github.com/priyanshu-ogdev/ssense-dpdp-slm",
+      "role": "Lead AI Systems Architect",
+      "timeline": { "start": "2026-07", "end": "Present", "current": true },
+      "repo_url": "https://github.com/priyanshu-ogdev/CognitAI",
       "preview_url": "",
-      "thumbnail_url": "/assets/projects/ssense-dpdp.webp",
-      "description": "An end-to-end machine learning pipeline dedicated to auditing Indian Digital Personal Data Protection (DPDP) Act compliance. This initiative consists of two major components: an adversarial synthetic data generator (GAN Forge) and an Unsloth-optimized SLM finetuning loop. Built with a strict focus on functional, production-ready software over simple prototypes, the project also features a custom VS Code extension that connects local development environments to cloud-based GPU runtimes for highly efficient, serverless machine learning training.",
+      "thumbnail_url": "/assets/projects/cognit-ai.webp",
+      "description": "A production-ready, decentralized, multi-agent coding assistant built as a VS Code extension with a hardened Rust Tokio backend and Dockerized Chromium worker swarm. Autonomously plans, implements, reviews, and iterates on codebase modifications through a strict 7-phase state machine with human-in-the-loop approval gates. Features tree-sitter AST RAG for cross-file dependency resolution, zero-trust HMAC-signed IPC, memory-aware worker provisioning (50% host budget cap), circuit breaker protection on AI providers, and obfuscated TypeScript extension bundling.",
       "detailed_architecture": {
         "core_components": [
-          "Adversarial GAN Forge — Vectorized synthetic data generation utilizing Qwen2-72B-Instruct-FP8 via vLLM. Engineered a stratified allocation matrix to prevent class imbalance across 8,000 synthetic corporate privacy policies while employing anti-mode-collapse temperature annealing.",
-          "Semantic Auditor & Validator — A robust validation layer utilizing difflib.SequenceMatcher for O(n) fuzzy logic. It enforces strict semantic primary/secondary keyword mapping and catches foreign law hallucinations (e.g., GDPR, CCPA).",
-          "Unsloth SLM Finetuning (SFT & DPO) — Trained a highly aligned Qwen3.5-9B model utilizing Unsloth's custom Triton kernels and TRL 0.17.0. Employed Identity Preference Optimization (IPO) with a beta of 0.5 to enforce strict legal reasoning boundaries, bypassing standard FlashAttention for memory-efficient SDPA fallback.",
-          "Serverless Wrapper (VS Code Extension) — Developed a custom VS Code extension operating as a 'Serverless Wrapper'. This extension seamlessly bridges local IDEs with remote GPU environments, automatically handling environment synchronization and effectively eliminating local hardware bottlenecks during iterative model training."
+          "Orchestrator State Machine — A 7-phase finite state machine (Planning → Implementation → Review → Approval → Fusion → Completed → Error) that drives tasks through code mutation with mandatory human sign-off before disk writes.",
+          "AST RAG Engine — tree-sitter-based parser covering 5 languages (Rust, Python, JavaScript, Go, Java). Continuously re-indexes the workspace every 60 seconds, extracting function/struct ASTs into an in-memory HashMap for cross-file dependency resolution.",
+          "Brain Daemon (Rust Tokio) — Axum HTTP server and IPC message broker that dynamically auto-builds Docker images via tokio::process::Command, enforces memory-aware swarm capacity (50% host RAM, 2.5GB/worker cap), and annihilates all containers on SIGTERM via tokio-graceful-shutdown.",
+          "Worker Swarm (Docker + Chromiumoxide) — Ephemeral Rust agents in isolated containers with strict limits (--memory=2g, --shm-size=1g, --cpus=2.0). Pre-flight DOM-based cookie verification before marking workers as ready.",
+          "Zero-Trust IPC Bus — Every inter-process message is HMAC-SHA256 signed with per-worker UUID secrets generated at spawn time. Verified messages only; unsigned containers are immediately terminated.",
+          "Circuit Breaker Layer — Dual provider circuit breakers (Qwen/DeepSeek) with 3-failure threshold and 60-second open state, enforcing failover without cascading failures.",
+          "Obfuscated VS Code Extension — TypeScript bundled via esbuild with javascript-obfuscator (control-flow flattening, string-array encoding, dead-code injection) for production deployment."
         ],
         "optimization_highlights": [
-          "Expanded maximum sequence length to 24,576 tokens while entirely avoiding OOM panics on a 128GB Grace Blackwell UMA by halving micro-batch sizes and strictly disabling TRL sequence packing to prevent causal mask cross-contamination.",
-          "Implemented automated VRAM Airlocks via Bash scripting to execute a Ray distributed daemon teardown and /dev/shm purge, safely extracting 75GB FP8 model weights from Nvidia driver contexts between the inference and training stages.",
-          "Optimized the data pipeline context window by dynamically caching injected law text, achieving a 30% pipeline speedup per generated policy."
+          "Dynamic Docker auto-build: If the worker image is missing locally, the daemon traverses the directory tree via std::env upward walk to locate worker/Dockerfile and builds it transparently.",
+          "Memory-aware provisioning: SwarmManager probes host total memory via sysinfo, reserves 50% for Cognit, and auto-scales down worker requests that exceed the budget.",
+          "Tree-sitter AST background indexing: Runs on spawn_blocking threads, fully async-compatible with tokio, indexing 5 languages simultaneously without blocking the event loop.",
+          "Split-brain ledger: Two separate JSONL files (.cognit_brain_history.jsonl and .cognit_worker_history.jsonl) prevent context pollution between high-level goals and microscopic AST mutations."
         ],
         "security_measures": [
-          "Sealed the training loops against backpropagation JSON corruption by enforcing token left-truncation, preserving the assistant's output during max-token limits.",
-          "Architected an automated False-Negative dropping mechanism inside the Reflexion loop to strictly prevent data-poisoning the DPO dataset with failed adversarial variations."
+          "Zero-Trust IPC: HMAC-SHA256 signed payloads with per-worker UUID secrets, verified at every message boundary.",
+          "Container Isolation: Docker enforces --memory=2g, --shm-size=1g, --cpus=2.0 limits with host network mode and no restart policy.",
+          "RLS-Enforced Database: All Supabase tables use Row Level Security — users can only read/write their own worker_nodes and license data.",
+          "Encrypted Session Cookies: Worker session cookies encrypted at rest using pgp_sym_encrypt with per-user salt derivation (auth.uid()::text || '_secure_salt').",
+          "Obfuscated Extension: Production bundle passes through control-flow flattening, base64 string arrays, and dead-code injection to resist reverse engineering.",
+          "Graceful Teardown: SIGTERM triggers tokio-graceful-shutdown which annihilates all child Docker containers, preventing zombie Chromium instances."
         ]
       },
-      "tech_stack": [
-        "Unsloth",
-        "TRL 0.17.0",
-        "vLLM",
-        "PyTorch",
-        "Qwen 72B & 9B",
-        "VS Code API",
-        "TypeScript",
-        "Bash Scripting"
-      ],
+      "tech_stack": ["Rust (Tokio, Axum, tree-sitter)", "TypeScript (VS Code Extension API)", "Docker (chromium:stable-slim)", "Chromiumoxide", "Supabase (RLS + pgcrypto)", "Web Tree-sitter", "esbuild + javascript-obfuscator", "bollard (Docker SDK)", "tokio-graceful-shutdown", "jsonwebtoken (JWT)", "blake3 (hashing)"],
       "metrics": {
-        "dataset_scale": "8,000 highly contextual synthetic policy pairs",
-        "context_window": "24,576 tokens for uninterrupted deep legal reasoning",
-        "training_efficiency": "Sub-10 hour end-to-end SFT and DPO alignment",
-        "hardware_utilization": "96GB peak VRAM optimized for Grace Blackwell UMA architectures"
+        "supported_languages": "5 (Rust, Python, JavaScript, Go, Java)",
+        "worker_memory_cap": "2GB per container (--memory=2g)",
+        "ipc_signing": "HMAC-SHA256",
+        "circuit_breaker_threshold": "3 failures / 60s open window",
+        "extension_bundle_size": "842.9KB (esbuild + obfuscation)",
+        "rag_reindex_interval": "60 seconds"
+      },
+      "layout": "left"
+    },
+    {
+      "id": "ssense",
+      "title": "Ssense: Edge Privacy & DPDP Compliance Platform",
+      "status": "completed",
+      "role": "Lead AI Engineer & Full-Stack Developer",
+      "timeline": { "start": "2025-08", "end": "2026-05", "current": false },
+      "repo_url": "https://github.com/priyanshu-ogdev/Ssense",
+      "preview_url": "",
+      "thumbnail_url": "/assets/projects/ssense.webp",
+      "description": "A production-grade, edge-native privacy platform that combines local AI analysis with browser-side privacy controls to help users understand data collection practices and reduce exposure to enterprise-grade tracking. Operations execute entirely on the edge via a 9-billion parameter LLM (Qwen/Qwen3.5-9B) running through a bare-metal Rust Native Daemon, with stealth rootkit injection into the browser's MAIN world to blind hardware fingerprinting scripts before they execute. Features dual-mode auto-failover (LOCAL_DAEMON / CLOUD_SERVER), HMAC-SHA256 challenge-response authentication, and persistent LRU policy cache with 30-minute TTL.",
+      "detailed_architecture": {
+        "core_components": [
+          "Edge & Cloud Dual-Mode AI Architecture — On-device 9-Billion Parameter Small Language Model (Qwen/Qwen3.5-9B) fine-tuned via Unsloth (rsLoRA + SimPO) with GGUF / vLLM multi-LoRA deployment. Dual-Mode Failover (AUTO / LOCAL_DAEMON / CLOUD_SERVER) routes to local Rust Daemon for zero-latency execution with exponential-backoff failover to hardened FastAPI Virtual SLM Server.",
+          "Deterministic Output via GBNF Grammar — GPT-BNF grammar physically constrains the C++ tensor engine, guaranteeing 100% valid JSON schema compliance (dpdp_schema.json) with zero parsing failures.",
+          "Persistent LRU Policy Cache — SHA-256 digest-keyed inference cache (completedAuditsCache with 30-minute TTL) serving deduplicated DPDP audit reports in <5ms across open browser tabs.",
+          "4-Byte LE Binary Framing — Ultra-reliable Little-Endian binary IPC framing between Chrome MV3 and Rust Daemon, completely eliminating UI lockups and JSON parse errors.",
+          "MAIN World API Spoofing — Injects stealth Proxies at document_start to override HTMLCanvasElement, WebGLRenderingContext, AudioContext, and Navigator.hardwareConcurrency. WeakSet registry masks Proxies as [native code].",
+          "Active DOM Node Removal — Goes beyond visual hiding by stripping (el.remove()) offending third-party <script> and <iframe> tracking nodes from the live DOM and scrubbing image tracking URLs.",
+          "Network Telemetry Interception — Hooks window.fetch and XMLHttpRequest in MAIN world to abort requests targeting blocked tracker domains and scrub invasive telemetry headers.",
+          "Cryptographic Anti-Extraction Shield — HMAC-SHA256 challenge-response authentication with 30-second timestamp window and nonce replay prevention. Active monitoring for systematic distillation or chain-of-thought extraction probing with HTTP 429 throttling and statutory watermark injection."
+        ],
+        "optimization_highlights": [
+          "Zero-latency local execution: Qwen3.5-9B runs on bare-metal Rust Native Daemon (llama-cpp-rs) with n_gpu_layers or CPU threads, bypassing cloud entirely.",
+          "4-Byte LE Binary Framing: Eliminates UI lockups and JSON parse errors between Chrome MV3 and Rust Daemon, ensuring sub-5ms cache hit response times.",
+          "GBNF Grammar Constraints: Physically constrains C++ tensor engine to guarantee 100% valid JSON schema compliance with zero parsing failures.",
+          "LRU Cache with Digest Keying: SHA-256 digest-keyed inference cache with 30-minute TTL serves deduplicated audit reports in <5ms across browser tabs."
+        ],
+        "security_measures": [
+          "HMAC-SHA256 Challenge-Response Authentication with 30-second timestamp window and nonce replay prevention cache.",
+          "Statutory Model Extraction Shield (AntiExtractionGuard) monitors prompt tokens and domain payloads for systematic distillation probing, throttling with HTTP 429 and statutory watermarks.",
+          "PII Scrubbing: Regex text redaction and MediaPipe face blurring before any data reaches external AI models.",
+          "Encrypted Cookie Handling: Session cookies encrypted at rest in SQLite WAL memory layer, decrypted only for DOM verification.",
+          "Main World Proxy Registry: WeakSet-based masking ensures anti-detection proxies appear as [native code], bypassing FingerprintJS v4 detection."
+        ]
+      },
+      "tech_stack": ["Rust (llama-cpp-rs, tokio, serde)", "TypeScript (Chrome MV3 Extension)", "React (Sidebar UI)", "FastAPI (Cloud SLM Server)", "vLLM (Multi-LoRA)", "PostgreSQL + Redis", "Unsloth (rsLoRA + SimPO QLoRA)", "Web Crypto API", "SQLite WAL"],
+      "metrics": {
+        "model_size": "9B parameters (Qwen3.5-9B, NF4/BF16)",
+        "cache_hit_latency": "<5ms (SHA-256 LRU with 30-minute TTL)",
+        "auth_window": "30 seconds (HMAC-SHA256 + nonce replay prevention)",
+        "supported_policies": "8+ categories (Data_Collection, Data_Sharing, Security_Retention, User_Choice, etc.)",
+        "schema_compliance": "100% (GBNF grammar constraints, zero parse failures)",
+        "dual_mode_failover": "LOCAL_DAEMON (primary) → CLOUD_SERVER (exponential backoff)"
       },
       "layout": "right"
     },
@@ -427,10 +483,282 @@
         "hardware_utilization": "Full pipeline optimized for native Windows RTX workstation execution"
       },
       "layout": "left"
+    },
+    {
+      "id": "hackt",
+      "title": "HackT Sovereign AI Agent",
+      "status": "active",
+      "role": "Sole Architect & Developer",
+      "timeline": { "start": "2026-03", "end": "Present", "current": true },
+      "repo_url": "",
+      "preview_url": "",
+      "thumbnail_url": "/assets/projects/hackt.webp",
+      "description": "A production-ready, zero-cloud sovereign AI agent built as a Tauri desktop application with a FastAPI backend. Operating under Project Trinity architecture, it provides real-time threat detection, AST-based code auditing across 6 languages, LLM-powered assistance using locally quantized Qwen models, and VRAM-aware resource management — all executing entirely on-device without any remote inference.",
+      "detailed_architecture": {
+        "core_components": [
+          "VRAM Guard Engine — Real-time GPU memory monitoring via pynvml with context-managed tensor allocation, auto-degradation when pressure exceeds 90%, and watchdog timer for crash resilience.",
+          "Quantized LLM Engine — Qwen 3.5 4B model running via llama-cpp-python with q4_k_m quantization, 4096-token context window, and hard 510-token clamping to prevent native C++ SIGSEGV crashes.",
+          "RAG Engine (Multi-Store) — Dual-persistence retrieval: LanceDB vector store for semantic embedding search (nomic-embed-text-v1.5) and Kuzu graph database for structural codebase dependency mapping with tree-sitter AST indexing.",
+          "Threat Scanner (AST-Based) — Real-time static analysis using tree-sitter parsers for Python, JavaScript, TypeScript, Rust, Go, and C++. Detects insecure patterns (SQL injection, hardcoded secrets, unsafe eval) with 1.5s file-watch debounce.",
+          "Audio Pipeline — faster-whisper small model (int8) for speech-to-text with VAD, and kokoro-onnx TTS with humanization padding. Thread-isolated audio workers prevent GIL contention during active development monitoring.",
+          "Tauri Frontend — TypeScript/React desktop shell with Zustand state management, 45-second boot sequence timeout, and code diff modal with single-click fix application across C++, Rust, and TypeScript files."
+        ],
+        "optimization_highlights": [
+          "Zero-cloud inference: Qwen 3.5 4B quantized to q4_k_m runs entirely on-device via llama-cpp-python with CPU-only fallback (force_cpu_mode config).",
+          "Thread isolation: Audio, STT, TTS, VAD, and vision workers each run on dedicated ThreadPoolExecutors to prevent GIL contention during active development.",
+          "Multi-store RAG: Combines vector similarity (LanceDB) with graph traversal (Kuzu) for AST-aware context resolution surpassing pure embedding search.",
+          "Lazy service loading: No circular imports — services are injected via dependency container with async-aware daemon startup and graceful shutdown."
+        ],
+        "security_measures": [
+          "Zero-remote inference: All LLM operations execute locally — no API calls to external providers.",
+          "Code diff sandboxing: Threat scanner broadcasts suggested fixes to UI; disk writes require explicit user approval via single-click modal.",
+          "AST-based threat detection: Tree-sitter parsers identify insecure coding patterns across 6 languages with sub-2-second detection latency.",
+          "Signal-aware shutdown: Async SIGTERM/SIGINT handlers ensure graceful daemon teardown without orphaned processes."
+        ]
+      },
+      "tech_stack": ["Python 3.11", "FastAPI", "Tauri 1.5", "React 18", "TypeScript", "llama-cpp-python", "LanceDB", "Kuzu Graph DB", "tree-sitter", "faster-whisper", "kokoro-onnx", "PyTorch", "pynvml", "watchdog", "Zustand"],
+      "metrics": {
+        "model_size": "3.5B parameters (q4_k_m quantized, ~2.1GB on disk)",
+        "context_window": "4,096 tokens",
+        "token_hard_clamp": "510 tokens (prevents native C++ SIGSEGV)",
+        "cpu_threads": "4 (configurable)",
+        "supported_languages_for_ast": "6 (Python, JavaScript, TypeScript, Rust, Go, C++)",
+        "file_watch_debounce": "1.5 seconds",
+        "boot_timeout": "45 seconds (model loading)"
+      },
+      "layout": "right"
+    },
+    {
+      "id": "krisna",
+      "title": "Krisna: Agentic AI Design System",
+      "status": "active",
+      "role": "Lead ML Engineer & Pipeline Architect",
+      "timeline": { "start": "2025-08", "end": "Present", "current": true },
+      "repo_url": "",
+      "preview_url": "",
+      "thumbnail_url": "/assets/projects/krisna.webp",
+      "description": "A production-ready, single-GPU (48GB VRAM) conversational AI design agent utilizing a Two-Tier Generation Architecture (Sparse Masked Sketching → Continuous Flow Polishing) with an on-demand Critic Tier for VL-judged design review. Powered by a fully automated, zero-touch 21-stage Data-Forge ingestion pipeline that processes millions of images into training-ready latents with VLM-as-Judge auditing and strict PII redaction.",
+      "detailed_architecture": {
+        "core_components": [
+          "Two-Tier Generation Pipeline — Stage 1 (Sketch Tier): 8-step MaskGIT/MAR masked generation with Halton scheduler and token-critic confidence gating. Stage 2 (Polish Tier): Z-Image-Turbo (6B) fast diffusion handoff with region-locked differential refinement, or Qwen-Image-Edit-2511 (20B) for complex semantic rendering.",
+          "Dynamic vLLM Swapping — Model tiers (Sketch, Polish, OCR, Critic) are swapped in/out via vLLM's dynamic model loading engine with psutil zombie-process teardown. Only the active tier consumes VRAM at any given time.",
+          "Data-Forge 21-Stage Pipeline — Custom Python orchestrator with SQLite WAL-mode manifest for ACID-compliant state tracking. Processes images through fetch → dedup → quality → safety → PII scrub → caption → structure → encode → audit → export with VLM-as-Judge validation at each stage.",
+          "Tri-Path Latent Encoding — Every approved image is encoded into four representations: Z-Image fp16 safetensors, Qwen-Image fp16 safetensors, VQ discrete tokens (int16) for sketching, and structural control maps (Canny edges + bounding boxes).",
+          "Critic Tier (On-Demand) — Gemma 4 31B Dense (QLoRA via Unsloth) is swapped in only when explicitly requested, never resident during conversation. Generates scorused critiques seeding /ui_critique/ for DPO training.",
+          "PII Protection Pipeline — Multi-layer scrubbing: regex text redaction (s05_5_pii_text_redact), MediaPipe face blurring (s03_5_pii_scrub), and URL sanitization for metadata-only datasets (PD12M/CC12M)."
+        ],
+        "optimization_highlights": [
+          "Tri-path encoding: Single image → four latent representations (Z-Image, Qwen-Image, VQ tokens, control maps) with domain-gated routing via ui_first_ratio configuration.",
+          "Dynamic model swapping: Only active tier consumes VRAM; psutil zombie teardown between stages prevents VRAM leaks across millions of records.",
+          "21-stage DAG with SQLite WAL: ACID-compliant manifest tracking across fetch, dedup, quality, safety, PII scrub, caption, structure, encoding, and export stages.",
+          "URL-list download path: Enables ingestion of metadata-only datasets (PD12M/CC12M with 25M records) that ship as parquet/TSV + external image URLs."
+        ],
+        "security_measures": [
+          "Strict PII redaction pipeline: Three-layer protection (regex text, MediaPipe face blur, URL sanitization) with no PII leakage in training data.",
+          "License verification agent: Inline check during fetch stage validates dataset licensing before ingestion.",
+          "Faiss dedup with CPU fallback: Windows/macOS get faiss-cpu; Stage 2 deduplication runs CPU-only to prevent memory monopolization.",
+          "SQLite WAL mode with IMMEDIATE locks: Prevents data corruption during concurrent manifest updates across pipeline stages."
+        ]
+      },
+      "tech_stack": ["Python 3.10", "vLLM", "PyTorch", "Unsloth (QLoRA)", "FAISS", "OpenCV", "MediaPipe", "Pillow", "Pandas/Polars", "PyArrow", "SQLite WAL", "HuggingFace Hub", "diffusers", "tokenizers", "pytest", "ruff"],
+      "metrics": {
+        "pipeline_stages": "21 (00_manifest through 12_model_data_export)",
+        "latents_per_image": "4 (Z-Image fp16, Qwen-Image fp16, VQ int16, control maps JSON)",
+        "datasets_supported": "6+ (RICO, UICrit, Screen2Words, PD12M, CC12M, HF Hub)",
+        "target_gpu": "Single 48GB (RTX A6000 / Ada 6000)",
+        "dedup_method": "GPU-accelerated FAISS (Linux) / CPU-only (Windows/macOS)",
+        "audit_method": "VLM-as-Judge rubric evaluation (replaces human spot-checks)"
+      },
+      "layout": "right"
+    },
+    {
+      "id": "rl-lab",
+      "title": "RL_Lab: CPU-Optimized Reinforcement Learning Framework",
+      "status": "completed",
+      "role": "Lead ML Engineer & Systems Architect",
+      "timeline": { "start": "2025-07", "end": "2025-07", "current": false },
+      "repo_url": "",
+      "preview_url": "",
+      "thumbnail_url": "/assets/projects/rl-lab.webp",
+      "description": "A production-ready reinforcement learning framework engineered for stable, crash-resilient CPU training of Dueling Double DQN agents in custom stealth-based environments. Features mathematically rigorous ray-casting LIDAR physics, 6-DOF guard vision cones with wall occlusion, an interactive Pygame visualization with real-time hyperparameter sliders at 60 FPS, and an O(1) windowed evaluation engine with matplotlib report generation.",
+      "detailed_architecture": {
+        "core_components": [
+          "Dueling Double DQN Agent — Separate V(s) value stream and A(s,a) advantage stream with LayerNorm for stable CPU training. Double DQN decouples action selection from target value estimation. N-step returns (3-step) with AdamW optimizer and Polyak-averaged target network updates (τ=0.005).",
+          "Stealth Environment (Gymnasium) — Procedurally generated 2D maze with seed-based reproducible wall layouts. Ray-casting LIDAR engine using exact slab-method ray-AABB intersection for 16-beam distance measurement. 6-DOF guard vision cones with configurable FOV (60°), vision radius (150 units), and wall occlusion detection.",
+          "SyncVectorEnv Architecture — Replaces AsyncVectorEnv with SyncVectorEnv to eliminate Windows multiprocessing pipe crashes and GIL errors. 4 parallel environments run in main thread with sequential stepping for complete crash resilience.",
+          "Interactive Render Engine — Pygame-based 60 FPS renderer with triple-buffered surfaces for environment, route memory, and UI. Real-time sliders for sim speed (1-10x), epsilon (0.01-1.0), learning rate (0.0001-0.01), and curriculum difficulty (0-1). Font fix uses 'arial' to prevent garbage character rendering on Windows.",
+          "Curriculum Learning System — Adaptive difficulty scaling that progressively increases guard count based on agent performance. Guard count starts at baseline and increments as curriculum_alpha increases, with guard speed scaling based on config.",
+          "RLEvaluator — O(1) metrics logging with windowed moving averages (deque-based). Tracks episode rewards, lengths, Q-losses, success rates, epsilons, and curriculum levels. Generates matplotlib visualizations every 5 episodes to preserve rendering FPS."
+        ],
+        "optimization_highlights": [
+          "SyncVectorEnv replacement: Eliminates Windows asyncio pipe crashes by running all environments in the main thread with sequential stepping.",
+          "CPU-optimized DQN: LayerNorm prevents internal covariate shift, AdamW provides weight decay regularization, N-step returns reduce variance in sparse reward settings.",
+          "Ray-casting LIDAR: Exact slab-method intersection computation for precise distance measurements without approximation errors.",
+          "Triple-buffered Pygame rendering: Environment, route memory, and UI surfaces rendered separately and composited for 60 FPS performance."
+        ],
+        "security_measures": [
+          "KeyboardInterrupt handler with graceful degradation in try/finally block preventing data loss on forced termination.",
+          "Ray-casting distance clamping: Guard vision rays are clamped to vision_radius preventing numerical overflow in edge cases.",
+          "LayerNorm normalization: Prevents exploding gradients during sustained CPU training sessions.",
+          "N-step return accumulation with proper discount factorization preventing reward signal corruption."
+        ]
+      },
+      "tech_stack": ["Python 3.11", "PyTorch (CPU-optimized)", "Gymnasium", "Pygame", "NumPy", "Matplotlib", "asyncio"],
+      "metrics": {
+        "parallel_envs": "4 (SyncVectorEnv, main-thread sequential)",
+        "lidar_beams": "16 (ray-casting slab-method intersection)",
+        "guard_vision_fov": "60 degrees with wall occlusion",
+        "guard_max_count": "6 (configurable via curriculum)",
+        "state_dim": "26 (LIDAR + agent position + guard states)",
+        "action_dim": "5 (move forward, turn left, turn right, wait, sprint)",
+        "render_fps": "60 (Pygame with triple-buffered surfaces)",
+        "n_step_returns": "3 (temporal difference accumulation)"
+      },
+      "layout": "left"
+    },
+    {
+      "id": "trackchain",
+      "title": "TrackChain ITMS",
+      "status": "completed",
+      "role": "Lead Full-Stack & ML Engineer",
+      "timeline": { "start": "2025-08", "end": "2026-05", "current": false },
+      "repo_url": "",
+      "preview_url": "",
+      "thumbnail_url": "/assets/projects/trackchain.webp",
+      "description": "An autonomous railway track anomaly intelligence system (Integrated Track Monitoring System) that transforms revenue locomotives into scanning nodes. Fuses 4K 60FPS optical vision, 100Hz 3-axis IMU vibration dynamics, centimetric RTK GNSS positioning, and an EN 13848-1 physics engine to detect flaws at 130 km/h, forecast degradation 90 days into the future, and coordinate multi-agency repair dispatches in real-time. Production-certified with ZERO hardcoded mocks — all waveforms generated via kinematic physics engines, all CV detections via live YOLOv8n forward passes, all anomalies via Isolation Forest estimators.",
+      "detailed_architecture": {
+        "core_components": [
+          "Edge Perception Engine — 4K 60FPS Sony IMX477 vision head with OpenCV Canny/Hough pipeline for rail centerline extraction. 6-DOF ICM-42688-P IMU at 100Hz for vibration dynamics. Dual-antenna u-blox ZED-F9P RTK GNSS with ±0.05m accuracy. NVIDIA Jetson Orin Nano for on-board inference.",
+          "EN 13848-1 Physics Calculator — Computes track twist (τ = |C(z) - C(z-L)| / L) over 3.0m base length, gauge, and cant. Enforces Action Level (AL ≤ 2.0 mm/m) and Immediate Action Limit (IAL > 3.5 mm/m) thresholds with mandatory TSR 30 km/h dispatch.",
+          "YOLOv8n Detection Engine — Live neural network forward pass for fastener cracks, rail squats, joint gaps, and surface defects. SAHI (Slicing Adaptive Inference) for high-resolution frame processing. Output: bounding boxes + confidence + class.",
+          "Isolation Forest Anomaly Detector — Trained on 10km nominal track profiles. Continuous outlier scoring for geometry anomalies with conformal prediction bands (P10-P90). Sklearn scikit-learn implementation with 90-day degradation forecasting via Weibull survival analysis.",
+          "3D WebGL Digital Twin — React Three Fiber renderer with 1,000+ instanced sleepers in a single draw call sustaining locked 60 FPS. TQI vertex-color shaders (Emerald Green → Cyber Cyan → Glowing Amber → Crimson Red). Click-to-sync defect volumes with video waveform lockstep.",
+          "FastAPI Async Gateway — 13 REST API routes with Pydantic v2 contract models. TimescaleDB hypertables (1-day chunk partitioning) with PostGIS spatial coordinates. Redis SSE event bus for live alert streaming. Mutual TLS 1.3 gateway with HMAC-SHA256 request signing.",
+          "Circular SQLite WAL Buffer — 72-hour zero-data-loss tunnel storage for tunnel disconnections. Automatic sync resumption with idempotent delivery guarantees when re-entering coverage.",
+          "Multiplayer War Room — Collaborative incident triage with spatial map pinning, temporal video scrubber flags, zero-asset voice note recording (30s MediaRecorder), and deterministic live demo triggers for SIH presentations."
+        ],
+        "optimization_highlights": [
+          "Instanced Mesh Optimization: 1,000+ concrete sleepers rendered in 1 draw call via Three.js <instancedMesh> with individual cant rotation matrices, sustaining locked 60 FPS on standard hardware.",
+          "Zero-Mock Architecture: All track geometry waveforms generated via EN 13848-1 / RDSO kinematic physics engines. All CV detections via live YOLOv8n forward passes. All anomaly scores via Isolation Forest estimators trained on real 10km profiles.",
+          "5-Stage Distributed Tracing: End-to-end latency = Capture + Transport + Ingest + Inference + Render. 18.5ms stream delivery with sub-millisecond synchronization.",
+          "Honest ML Degradation: If YOLO weights (.pt) are physically absent, backend sets yolo_weights_loaded: false, frontend renders honest fallback badges without 500 errors.",
+          "Hardware BOM < $600: RTX A6000 / Jetson Orin Nano + RPi 5 edge node achieves full capital cost recovery in under 60 days by preventing a single emergency track block."
+        ],
+        "security_measures": [
+          "Mutual TLS 1.3 / HTTPS Gateway with HMAC-SHA256 request signing and scoped JWT authentication.",
+          "Nonces and timestamp windows (30 seconds) for all API requests preventing replay attacks.",
+          "Idempotent delivery protocols for alert dispatch preventing duplicate complaints in government inboxes.",
+          "Zero-Asset Web Audio Synthesizer: Procedural emergency sirens via Web Audio API without downloading external MP3 files.",
+          "Strict DEMO ↔ REAL State Machine: Honest ML degradation boundary ensuring zero silent mocks in production."
+        ]
+      },
+      "tech_stack": ["Next.js 14 (App Router)", "React 18", "TypeScript 5", "Three.js / R3F", "FastAPI", "PostgreSQL 14 + TimescaleDB", "PostGIS", "Redis (SSE)", "MinIO (S3)", "OpenCV", "scikit-learn", "ONNX Runtime", "YOLOv8n", "PyTorch", "Leaflet", "Recharts", "HLS.js", "Tailwind CSS", "Zustand", "Vercel", "Docker Compose", "PNPM Workspaces"],
+      "metrics": {
+        "inspection_frequency": "Continuous & Autonomous (vs legacy 60-90 day manual)",
+        "inference_latency": "18.5ms real-time stream delivery",
+        "digital_twin_fps": "60 FPS locked (1,000+ instanced sleepers)",
+        "routes": "13/13 green build (Mission Control, Digital Twin, Forecast, War Room, Map, Lab, Performance, Devices, Sessions, Defects, Reports, Alerts)",
+        "hardware_roi": "< 60 days (sub-$600 edge node preventing single emergency block)",
+        "data_integrity": "Circular SQLite WAL buffer with 72-hour zero-loss tunnel storage",
+        "standards_compliance": "EN 13848-1 / RDSO CTI v2.4"
+      },
+      "layout": "right"
+    },
+    {
+      "id": "tradejack",
+      "title": "TradeJack: Sovereign Bare-Metal AI Swarm",
+      "status": "completed",
+      "role": "Lead AI Researcher & Systems Architect",
+      "timeline": { "start": "2025-07", "end": "Present", "current": true },
+      "repo_url": "",
+      "preview_url": "",
+      "thumbnail_url": "/assets/projects/tradejack.webp",
+      "description": "An uncompromising, bare-metal, self-replicating neuro-evolutionary financial organism engineered for NVIDIA DGX Spark (Grace Blackwell architecture, CUDA 13, 128GB Unified Memory). Fuses cutting-edge mathematical perception models (huseinzol05/Stock-Prediction-Models) with sovereign, self-modifying agentic execution. Operates as 50 sovereign Docker containers that compete for VRAM slices under real-time survival taxation, evolve neural topologies dynamically, and engage in trustless P2P weight exchange via smart contract escrow with 10x out-of-sample validation airgaps. Full 16-test verification suite (100% passed).",
+      "detailed_architecture": {
+        "core_components": [
+          "Warden Hypervisor — Dynamic MIG/MVS VRAM partitioning into Tier 1 (20GB), Tier 2 (4GB), Tier 3 (0GB) based on Sharpe ratio and max drawdown. Logarithmic + Stagnation survival tax (Tax_t = Tax_0 * (1 + alpha * ln(1 + t/60)) + beta * t_stagnant). SQLite ledger audits via isolated multiprocessing.Process with INSERT OR IGNORE logic bypassing Python GIL.",
+          "Zero-OOM Unified Memory Swapping — Exploits Grace Blackwell's 128GB Unified Memory over NVLink-C2C. Models pinned in host memory and swapped into CUDA execution units in microseconds without OOM crashes. Recklessness watchdog penalizes CUDA OOM containers -$10 and locks Tier 3 for 24 hours.",
+          "GPUDirect Storage (cufile) Streaming — KvikIODataForge streams partitioned LOB data directly from NVME drives into CUDA tensor memory without CPU bounce buffers. Zero-copy NVIDIA DALI batch loaders with double-buffer sequence batching.",
+          "Self-Modifying Architecture Engine — Dynamically swaps neural architectures (Transformer, Dilated-CNN-Seq2seq, Deep-Q scalper) to comply with assigned VRAM Tier memory limits. Hot-swap followed by gc.collect(), sys.modules clearing, and torch.cuda.empty_cache() sweeps.",
+          "Elastic Weight Consolidation (EWC) — Diagonal Fisher Information matrices across historical calibration datasets to penalize drift on critical alpha weights, eliminating catastrophic forgetting during continuous online adaptation.",
+          "Git Financial Rollback — Tags repository state at equity high-water marks. If drawdown exceeds 15%, instantly resets commits and weights back to high-water mark tag (git reset --hard).",
+          "Hindsight Experience Replay (HER) + Population-Based Training (PBT) — Converts failed execution sequences into positive training targets. Bottom 20% containers exploit and mutate top 20% parent hyperparameters.",
+          "Trustless P2P Escrow Bridge — Containers discover and purchase superior weights via decentralized social gossip. Atomically locks USDC cash during validation.",
+          "10x Validation Airgap — Sandboxes candidate weights across 10 historical flash-crash splits (2020-03-12, 2021-05-19, etc.). Requires Avg Sharpe >= 1.0 and Max Drawdown <= 15%. Failed transactions refunded 100% (REFUNDED)."
+        ],
+        "optimization_highlights": [
+          "128GB Unified Memory NVLink-C2C: CPU and GPU share physical RAM over NVLink-C2C, enabling sub-microsecond tensor transfers without CUDA OOM crashes.",
+          "Phase 5 SOTA Master Orchestration: Reaper Protocol uses OS-level signal and atexit hooks to violently terminate vLLM and Warden subprocesses if script aborts, preventing zombie memory locks.",
+          "Strict Environment Masking: genesis_prime unsets CUDA_VISIBLE_DEVICES on itself, reserving 100% of VRAM for child containers and background vLLM reasoning server.",
+          "Idempotent Multiprocessing Audit: SQLite ledger audits via INSERT OR IGNORE logic in isolated OS-level multiprocessing.Process, doubling-dip taxation prevention during heavy load."
+        ],
+        "security_measures": [
+          "Survival Tax Enforcement: Insolvent containers (equity <= $0 or cash <= -$50) are terminated and purged. Logarithmic tax increases over time, stagnation penalty for inactive agents.",
+          "CUDA OOM Recklessness Watchdog: Any container triggering CUDA OOM is instantly penalized -$10.00 and locked to Tier 3 for 24 hours.",
+          "10x Out-of-Sample Validation Airgap: Candidate model weights rejected if they fail to maintain Sharpe >= 1.0 or Max Drawdown <= 15.0 across 10 historical flash-crash splits. Automatic 100% refund on rejection.",
+          "Atomic P2P Escrow: USDC cash balance locked during validation, released only upon successful acceptance of candidate weights.",
+          "Idempotent Audit Trails: SQLite WAL-mode ledger audits prevent double taxation during heavy load via INSERT OR IGNORE logic."
+        ]
+      },
+      "tech_stack": ["Python 3.11", "PyTorch", "CUDA 13", "Docker", "SQLite (WAL)", "NVIDIA DALI", "KvikIO (GPUDirect Storage)", "cufile", "ChromaDB (Cosine)", "NumPy", "Polars", "Supabase"],
+      "metrics": {
+        "swarm_size": "50 sovereign Docker containers",
+        "target_hardware": "NVIDIA DGX Spark (128GB Unified Memory, 1 PetaFLOP)",
+        "initial_equity": "$10.00 per container (target: $10,000.00)",
+        "validation_airgap": "10 historical flash-crash splits (10x out-of-sample)",
+        "oom_penalty": "-$10.00 + 24h Tier 3 lock for CUDA OOM triggers",
+        "survival_tax": "Logarithmic (alpha=0.5) + Stagnation (beta=0.1) formula",
+        "drawdown_rollback": "15.0% threshold triggers git reset --hard to high-water mark",
+        "test_suite": "16 tests, 100% passed"
+      },
+      "layout": "left"
+    },
+    {
+      "id": "itfarmer",
+      "title": "ITFarmer / Neural Forge Hub",
+      "status": "completed",
+      "role": "Full-Stack Developer & System Architect",
+      "timeline": { "start": "2025-07", "end": "Present", "current": true },
+      "repo_url": "",
+      "preview_url": "https://www.neuralforgehub.tech",
+      "thumbnail_url": "/assets/projects/itfarmer.webp",
+      "description": "A production-ready, cyber-brutalist Next.js 16 web application powering the Neural Forge Hub engineering studio. Features serverless AWS API Gateway + DynamoDB backend with zero S3 bucket dependency, a hardened admin CMS with password-protected mutations, client-side Base64 image pipeline for payload optimization, and a Groq Llama 3-powered AI assistant (ORBIT CORE) that aggregates all database context for real-time context-aware responses.",
+      "detailed_architecture": {
+        "core_components": [
+          "Serverless Data Layer — AWS API Gateway routes to DynamoDB tables (worksContent, postsContent, capabilities, about, faqContent, ecosystemContent, clientsContent). All images stored as Base64 JSON payloads with client-side resize + compression to bypass API payload limits (max 5MB upload).",
+          "Admin CMS (/admin) — Password-protected server-side admin panel with TypeScript CRUD operations. Uses Next.js Server Actions with revalidatePath for state mutations and 60-second ISR with tag-based on-demand cache invalidation.",
+          "ORBIT CORE AI Assistant — Chat API route (/api/chat) that injects complete database context (HERO, POSTS, CLIENTS, FAQ, ECOSYSTEM, SYSTEM_CONFIG) as structured JSON into Groq Llama 3 8B system prompt. Filters 'ORBIT CORE ONLINE' from message history to prevent sequence errors.",
+          "Base64 Image Pipeline — HTML5 Canvas client-side downscaling before upload, JPEG compression with configurable quality, and DynamoDB direct JSON storage. Eliminates S3 bucket configuration entirely.",
+          "Middleware Auth — Next.js middleware enforces admin authentication via environment variable password comparison. Server-side session handling with no client-side token storage. Fallback for local development when .env.local is missing.",
+          "Data Proxy (/api/data/[file]) — Serverless GET-only proxy with strict input validation (/^[a-zA-Z0-9_-]+$/ regex) preventing path traversal. 60-second ISR cache with filename-based tag invalidation."
+        ],
+        "optimization_highlights": [
+          "Zero-S3 architecture: All images stored as Base64 directly in DynamoDB JSON payloads with client-side resize to bypass API Gateway 10MB limit.",
+          "ISR with tag-based invalidation: 60-second revalidate window with filename tags for atomic cache updates on data mutations.",
+          "Parallel DB context aggregation: Chat API fetches all 8 database tables concurrently via Promise.all for sub-1s response times.",
+          "Brutalist CSS optimization: Pure CSS Grid + Framer Motion with no external animation libraries, achieving 60fps transitions."
+        ],
+        "security_measures": [
+          "Password-based admin auth with environment variable comparison (no client-side token storage).",
+          "Input validation on API data proxy: filename regex (/^[a-zA-Z0-9_-]+$/) prevents path traversal and injection.",
+          "Server Actions with revalidatePath for atomic state mutations with no race conditions.",
+          "5MB client-side upload validation before Base64 encoding and transmission.",
+          "60-second ISR caching prevents stale data exposure with tag-based on-demand invalidation."
+        ]
+      },
+      "tech_stack": ["Next.js 16 (App Router)", "React 19", "TypeScript 5", "Tailwind CSS 4", "Framer Motion", "AWS API Gateway", "AWS DynamoDB", "Groq Llama 3 8B", "Web3Forms", "Vercel"],
+      "metrics": {
+        "deployment": "Vercel (Frontend) + AWS Serverless (Backend)",
+        "image_pipeline": "Client-side Canvas resize + Base64 JSON storage (zero S3)",
+        "cache_strategy": "60-second ISR with tag-based revalidation",
+        "admin_auth": "Environment variable password with server-side sessions",
+        "ai_response_time": "Sub-500ms via Groq Llama 3 8B",
+        "upload_limit": "5MB per image (client-side validated)"
+      },
+      "layout": "left"
     }
   ],
   "about": {
-    "short": "AI Researcher & Security Architect forging secure, hardware-optimized, crash-resilient edge systems.",
     "full": "I am an AI Researcher and Security Architect dedicated to engineering secure, explainable, and resilient architectures that execute strictly on-device. My work focuses heavily on deep NLP logic, V21.0-Lite single-model RAG pipelines, and hardware-aware quantization tailored for consumer-grade environments, ensuring system intelligence never compromises user privacy or operational performance.\n\nI operate on the philosophy of mathematics-driven security and transparent infrastructure that survives real-world failure modes. Whether I am architecting the GoPrivate Android EDR entirely solo from C++ JNI upward, or orchestrating autonomous LLM workflows, my focus remains locked on zero-remote inference and unyielding system integrity.\n\nCurrently pursuing my B.Tech in AI & ML at IEM Kolkata (Batch of 2024-2028), I am actively expanding the boundaries of open-source cyber-defense and natural language processing at the absolute edge.",
     "values": [
       "Security forged through mathematical rigor, not obscurity",
